@@ -1,4 +1,5 @@
 import { useState } from "react";
+import logo from "../assets/vismed-logo.png";
 import "../styles/mis.css";
 
 const patients = [
@@ -13,7 +14,7 @@ const patients = [
       "https://picsum.photos/900/500?1",
       "https://picsum.photos/900/500?2",
       "https://picsum.photos/900/500?3",
-    ],  
+    ],
   },
   {
     id: "P43210",
@@ -50,25 +51,24 @@ export default function MISViewer() {
   };
 
   const handleUpload = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+    const file = e.target.files[0];
+    if (!file) return;
 
-  const imageUrl = URL.createObjectURL(file);
+    const imageUrl = URL.createObjectURL(file);
 
-  if (!currentPatient) {
-    alert("Select patient first");
-    return;
-  }
+    if (!currentPatient) {
+      alert("Select patient first");
+      return;
+    }
 
-  // tambah ke list image
-  const updatedPatient = {
-    ...currentPatient,
-    images: [...currentPatient.images, imageUrl],
+    const updatedPatient = {
+      ...currentPatient,
+      images: [...currentPatient.images, imageUrl],
+    };
+
+    setCurrentPatient(updatedPatient);
+    setCurrentImage(updatedPatient.images.length - 1);
   };
-
-  setCurrentPatient(updatedPatient);
-  setCurrentImage(updatedPatient.images.length - 1);
-};
 
   const next = () => {
     if (!currentPatient) return;
@@ -103,18 +103,18 @@ export default function MISViewer() {
   };
 
   return (
-    <div>
+    <div className="misv-root">
       {/* HEADER */}
-      <header className="header">
-        <div className="logo-area">
+      <header className="misv-header">
+        <div className="misv-logo-area">
           <img
-            src="/logo-app/vismed-logo.png"
-            className="logo"
+            src={logo}
+            className="misv-logo"
             alt="logo"
           />
           <div>
-            <div className="title">VISMED Imaging System</div>
-            <div className="subtitle">
+            <div className="misv-title">VISMED Imaging System</div>
+            <div className="misv-subtitle">
               Radiology Image Review & Patient Record Assignment
             </div>
           </div>
@@ -122,13 +122,13 @@ export default function MISViewer() {
       </header>
 
       {/* LAYOUT */}
-      <div className="layout">
+      <div className="misv-layout">
         {/* SIDEBAR */}
-        <aside className="sidebar">
-          <label className="section-label">Select Patient</label>
+        <aside className="misv-sidebar">
+          <label className="misv-section-label">Select Patient</label>
 
           <select
-            className="patient-select"
+            className="misv-patient-select"
             onChange={handleSelect}
             value={currentPatient?.id || ""}
           >
@@ -142,39 +142,39 @@ export default function MISViewer() {
 
           {/* PATIENT CARD */}
           <div
-            className="patient-card"
+            className="misv-patient-card"
             style={{ display: currentPatient ? "block" : "none" }}
           >
-            <h6 className="card-title">Incoming Image Details</h6>
+            <h6 className="misv-card-title">Incoming Image Details</h6>
 
-            <div className="info-row">
+            <div className="misv-info-row">
               <span>Patient Name</span>
               <strong>{currentPatient?.name}</strong>
             </div>
 
-            <div className="info-row">
+            <div className="misv-info-row">
               <span>Patient ID</span>
               <strong>{currentPatient?.id}</strong>
             </div>
 
-            <div className="info-row">
+            <div className="misv-info-row">
               <span>Modality</span>
-              <span className="modality">
+              <span className="misv-modality">
                 {currentPatient?.modality}
               </span>
             </div>
 
-            <div className="info-row">
+            <div className="misv-info-row">
               <span>Body Part</span>
               <strong>{currentPatient?.bodypart}</strong>
             </div>
 
-            <div className="info-row">
+            <div className="misv-info-row">
               <span>Date</span>
               <strong>{currentPatient?.date}</strong>
             </div>
 
-            <div className="info-row">
+            <div className="misv-info-row">
               <span>Time</span>
               <strong>{currentPatient?.time}</strong>
             </div>
@@ -182,15 +182,16 @@ export default function MISViewer() {
         </aside>
 
         {/* VIEWER */}
-        <main className="viewer-wrapper">
-          <div className="viewer">
+        <main className="misv-viewer-wrapper">
+          <div className="misv-viewer">
             {currentPatient ? (
               <img
                 src={currentPatient.images[currentImage]}
                 alt="viewer"
+                className="misv-image"
               />
             ) : (
-              <div className="viewer-placeholder">
+              <div className="misv-viewer-placeholder">
                 No Image Loaded
               </div>
             )}
@@ -199,33 +200,33 @@ export default function MISViewer() {
       </div>
 
       {/* FOOTER */}
-      <footer className="footer">
-        <div className="viewer-controls">
-          <button className="nav-btn" onClick={prev}>
+      <footer className="misv-footer">
+        <div className="misv-viewer-controls">
+          <button className="misv-nav-btn" onClick={prev}>
             Previous
           </button>
 
-          <span className="img-count">
+          <span className="misv-img-count">
             Image {currentPatient ? currentImage + 1 : 0} /{" "}
             {currentPatient ? currentPatient.images.length : 0}
           </span>
 
-          <button className="nav-btn" onClick={next}>
+          <button className="misv-nav-btn" onClick={next}>
             Next
           </button>
         </div>
 
-        <label className="upload-btn">
-      Upload
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => handleUpload(e)}
-          hidden
-        />
-      </label>
+        <label className="misv-upload-btn">
+          Upload
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleUpload(e)}
+            hidden
+          />
+        </label>
 
-        <button className="save-btn" onClick={handleSave}>
+        <button className="misv-save-btn" onClick={handleSave}>
           Save to Patient Record
         </button>
       </footer>
