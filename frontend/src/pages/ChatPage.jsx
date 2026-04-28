@@ -1,4 +1,5 @@
 ﻿import { useState, useRef, useEffect } from "react";
+import axios from "axios";
 import "../styles/chat.css";
 import logo from "../assets/vismed-logo.png";
 
@@ -46,12 +47,13 @@ export default function ChatPage() {
         Math.min(textarea.scrollHeight, maxHeight) + "px";
     };
 
-    const sendMessage = () => {
+    const sendMessage = async () => {
     if (!message.trim()) return;
 
+    const userPrompt = message;
     const userMsg = {
         role: "user",
-        text: message,
+        text: userPrompt,
     };
 
     setMessages((prev) => [...prev, userMsg]);
@@ -62,14 +64,29 @@ export default function ChatPage() {
         if (textarea) textarea.style.height = "42px";
     }, 0);
 
-    setTimeout(() => {
+    try {
+        const response = await axios.get("/ai/chatbot", {
+        params: {
+            prompt: userPrompt,
+        },
+        });
+
         const aiMsg = {
         role: "ai",
-        text: "This is AI response for: " + message,
+        text: response.data.response || "Tidak ada response dari AI.",
         };
 
         setMessages((prev) => [...prev, aiMsg]);
-    }, 800);
+    } catch (err) {
+        const aiMsg = {
+        role: "ai",
+        text:
+            err.response?.data?.error ||
+            "Gagal menghubungi AI. Pastikan backend dan Ollama aktif.",
+        };
+
+        setMessages((prev) => [...prev, aiMsg]);
+    }
     };
 
     const handleKeyDown = (e) => {
