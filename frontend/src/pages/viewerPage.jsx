@@ -1,106 +1,142 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import logo from "../assets/vismed-logo.png";
 import "../styles/mis.css";
 
-const patients = [
-  {
-    id: "P12345",
-    name: "Ahmad",
-    modality: "CT",
-    bodypart: "Chest",
-    date: "2026-03-04",
-    time: "09:30 AM",
-    images: [
-      "https://picsum.photos/900/500?1",
-      "https://picsum.photos/900/500?2",
-      "https://picsum.photos/900/500?3",
-    ],
-  },
-  {
-    id: "P43210",
-    name: "Budi",
-    modality: "MRI",
-    bodypart: "Head",
-    date: "2026-03-03",
-    time: "11:20 AM",
-    images: [
-      "https://picsum.photos/900/500?4",
-      "https://picsum.photos/900/500?5",
-    ],
-  },
-  {
-    id: "P88991",
-    name: "Siti",
-    modality: "X-Ray",
-    bodypart: "Arm",
-    date: "2026-03-02",
-    time: "02:15 PM",
-    images: ["https://picsum.photos/900/500?6"],
-  },
-];
 
 export default function MISViewer() {
+  const [patients, setPatients] = useState([]);
   const [currentPatient, setCurrentPatient] = useState(null);
-  const [currentImage, setCurrentImage] = useState(0);
+  const [currentVideo, setCurrentVideo] = useState(0);
+  
+  useEffect(() => {
+  axios.get("http://localhost:3000/pacs/get-mwl")
+    .then(res => {
+
+      console.log("MWL:", res.data);
+
+      const mapped = res.data.map((p, i) => ({
+        id: p.id + "_" + i,
+        rawId: p.id,
+        name: p.name,
+        modality: p.modality,
+        bodypart: p.bodypart,
+        date: p.date,
+        time: p.time,
+        videos: []
+      }));
+
+      setPatients(mapped);
+
+    })
+    .catch(err => console.error("ERROR:", err));
+}, []);
 
   const handleSelect = (e) => {
     const patient = patients.find((p) => p.id === e.target.value);
     if (!patient) return;
     setCurrentPatient(patient);
-    setCurrentImage(0);
+    setCurrentVideo(0);
   };
 
   const handleUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const imageUrl = URL.createObjectURL(file);
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
 
     if (!currentPatient) {
-      alert("Select patient first");
+      alert("Silahkan pilih pasien terlebih dahulu");
       return;
     }
+    const videoFiles = files.filter((file) =>
+      file.type.startsWith("video/")
+    );
 
     const updatedPatient = {
       ...currentPatient,
-      images: [...currentPatient.images, imageUrl],
+      videos: [...currentPatient.videos, ...videoFiles]
     };
 
     setCurrentPatient(updatedPatient);
-    setCurrentImage(updatedPatient.images.length - 1);
+
+    setPatients((prev) =>
+      prev.map((p) =>
+        p.id === updatedPatient.id ? updatedPatient : p
+      )
+    );
+
+    if (videoFiles.length > 0) {
+      setCurrentVideo(updatedPatient.videos.length - 1); // ✅ gunakan state video
+    }
+
+    e.target.value = null; 
+    
   };
 
   const next = () => {
     if (!currentPatient) return;
-    if (currentImage < currentPatient.images.length - 1) {
-      setCurrentImage((prev) => prev + 1);
+    if (currentVideo < currentPatient.videos.length - 1) {
+      setCurrentVideo((prev) => prev + 1);
     }
   };
 
   const prev = () => {
     if (!currentPatient) return;
-    if (currentImage > 0) {
-      setCurrentImage((prev) => prev - 1);
+    if (currentVideo > 0) {
+      setCurrentVideo((prev) => prev - 1);
     }
   };
-
-  const handleSave = () => {
-    if (!currentPatient) {
-      alert("Select patient first");
-      return;
-    }
-
-    const payload = {
-      patientID: currentPatient.id,
-      modality: currentPatient.modality,
-      bodypart: currentPatient.bodypart,
-      date: currentPatient.date,
-      image: currentPatient.images[currentImage],
-    };
-
-    console.log("Save Record Payload:", payload);
-    alert("Image assigned to patient medical record");
+  //Helper
+  const appendMetadata = (formData) => {
+    formData.append("patientID", currentPatient.rawId);
+    formData.append(
+      "name",
+      currentPatient.name.replace(/ /g, "^")
+    );
+    formData.append("modality", currentPatient.modality);
+    formData.append("bodypart", currentPatient.bodypart);
+    formData.append(
+      "date",
+      currentPatient.date.replaceAll("-", "")
+    );
+    formData.append(
+      "time",
+      currentPatient.time.replace(":", "") + "00"
+    );
   };
+
+  const handleSave = async () => {
+  if (!currentPatient) {
+    alert("pilih pasien terlebih dahulu");
+    return;
+  }
+
+  try {
+      // 🔥 UPLOAD VIDEO
+      for (const video of currentPatient.videos) {
+        const formData = new FormData();
+        formData.append("video", video);
+        appendMetadata(formData);
+
+        await axios.post(
+          "http://localhost:3000/pacs/upload-videos",
+          formData
+        );
+      }
+      setCurrentPatient(null);
+      setCurrentVideo(0);
+
+      setPatients((prev) =>
+      prev.map((p) => ({
+        ...p,
+        videos: [],
+      }))
+    );
+      alert("Berhasil kirim ke PACS 🚀");
+    } catch (err) {
+      console.error(err);
+      alert("Upload gagal");
+    }
+};
 
   return (
     <div className="misv-root">
@@ -184,22 +220,26 @@ export default function MISViewer() {
         {/* VIEWER */}
         <main className="misv-viewer-wrapper">
           <div className="misv-viewer">
-            {currentPatient ? (
-              <img
-                src={currentPatient.images[currentImage]}
-                alt="viewer"
-                className="misv-image"
-              />
-            ) : (
-              <div className="misv-viewer-placeholder">
-                No Image Loaded
-              </div>
-            )}
-          </div>
-        </main>
-      </div>
+          {currentPatient?.videos.length > 0 && (
+            <video
+              src={URL.createObjectURL(
+                currentPatient.videos[currentVideo]
+              )}
+              className="misv-image"
+              controls
+              autoPlay
+            />
+          )}
 
-      {/* FOOTER */}
+        {/* EMPTY */}
+        {currentPatient &&
+          currentPatient.videos.length === 0 && (
+            <div>No Data</div>
+          )}
+                </div>
+              </main>
+            </div>
+
       <footer className="misv-footer">
         <div className="misv-viewer-controls">
           <button className="misv-nav-btn" onClick={prev}>
@@ -207,8 +247,8 @@ export default function MISViewer() {
           </button>
 
           <span className="misv-img-count">
-            Image {currentPatient ? currentImage + 1 : 0} /{" "}
-            {currentPatient ? currentPatient.images.length : 0}
+            Video {currentPatient ? currentVideo + 1 : 0} /{" "}
+            {currentPatient ? currentPatient.videos.length : 0}
           </span>
 
           <button className="misv-nav-btn" onClick={next}>
@@ -220,7 +260,7 @@ export default function MISViewer() {
           Upload
           <input
             type="file"
-            accept="image/*"
+            accept="video/*"
             onChange={(e) => handleUpload(e)}
             hidden
           />
