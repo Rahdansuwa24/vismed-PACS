@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import axios from "axios";
 import logo from "../assets/vismed-logo.png";
 import "../styles/mis.css";
 
 
 export default function MISViewer() {
+  const navigate = useNavigate();
   const [patients, setPatients] = useState([]);
   const [currentPatient, setCurrentPatient] = useState(null);
   const [currentVideo, setCurrentVideo] = useState(0);
@@ -111,7 +114,6 @@ export default function MISViewer() {
   }
 
   try {
-      // 🔥 UPLOAD VIDEO
       for (const video of currentPatient.videos) {
         const formData = new FormData();
         formData.append("video", video);
@@ -131,7 +133,7 @@ export default function MISViewer() {
         videos: [],
       }))
     );
-      alert("Berhasil kirim ke PACS 🚀");
+      alert("Berhasil kirim ke PACS");
     } catch (err) {
       console.error(err);
       alert("Upload gagal");
@@ -143,6 +145,18 @@ export default function MISViewer() {
       {/* HEADER */}
       <header className="misv-header">
         <div className="misv-logo-area">
+          <div
+            className="misv-back"
+            onClick={() => {
+              if (window.history.length > 1) {
+                navigate(-1);
+              } else {
+                navigate("/dashboard"); // fallback aman
+              }
+            }}
+          >
+            <ArrowLeft size={20} />
+          </div>
           <img
             src={logo}
             className="misv-logo"

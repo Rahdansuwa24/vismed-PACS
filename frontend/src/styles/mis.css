@@ -1,3 +1,10 @@
+/* ================= ROOT ================= */
+
+body {
+  background: linear-gradient(135deg, #0f172a, #111827);
+  color: #E5E7EB;
+}
+
 /* ================= HEADER ================= */
 
 .misv-header {
@@ -5,8 +12,9 @@
   display: flex;
   align-items: center;
   padding: 0 30px;
-  border-bottom: 1px solid #e5e7eb;
-  background: #ffffff;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: rgba(17, 24, 39, 0.8);
+  backdrop-filter: blur(10px);
 }
 
 .misv-logo-area {
@@ -16,21 +24,20 @@
 }
 
 .misv-logo {
-  width: 38px;
-  height: auto;
-  object-fit: contain;
+  width: 40px;
 }
 
 .misv-title {
   font-weight: 600;
   font-size: 20px;
-  color: #009689;
+  color: #00c2a8;
 }
 
 .misv-subtitle {
   font-size: 13px;
-  color: #6b7280;
+  color: #9CA3AF;
 }
+
 
 /* ================= LAYOUT ================= */
 
@@ -39,12 +46,14 @@
   height: calc(100vh - 120px);
 }
 
+
 /* ================= SIDEBAR ================= */
 
 .misv-sidebar {
   width: 300px;
   padding: 25px;
-  border-right: 1px solid #f1f3f5;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  background: rgba(17, 24, 39, 0.6);
 }
 
 .misv-section-label {
@@ -52,7 +61,9 @@
   font-weight: 600;
   margin-bottom: 8px;
   display: block;
+  color: #D1D5DB;
 }
+
 
 /* ================= DROPDOWN ================= */
 
@@ -60,17 +71,18 @@
   width: 100%;
   padding: 10px;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #374151;
   font-size: 14px;
-  background: #ffffff;
-  color: #101828;
+  background: #111827;
+  color: #E5E7EB;
 }
 
 .misv-patient-select:focus {
-  border-color: #009689;
+  border-color: #00c2a8;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 150, 137, 0.2);
+  box-shadow: 0 0 0 2px rgba(0, 194, 168, 0.2);
 }
+
 
 /* ================= PATIENT CARD ================= */
 
@@ -78,15 +90,16 @@
   margin-top: 22px;
   padding: 18px;
   border-radius: 12px;
-  background: #ffffff;
-  border: 1px solid #f2f4f7;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+  background: #111827;
+  border: 1px solid #1F2937;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   display: none;
 }
 
 .misv-card-title {
   margin-bottom: 16px;
 }
+
 
 /* ================= INFO ================= */
 
@@ -98,19 +111,21 @@
 }
 
 .misv-info-row span {
-  color: #6b7280;
+  color: #9CA3AF;
 }
+
 
 /* ================= MODALITY ================= */
 
 .misv-modality {
-  background: #009689;
-  color: #ffffff !important;
+  background: linear-gradient(135deg, #00c2a8, #009689);
+  color: white !important;
   padding: 4px 10px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
 }
+
 
 /* ================= VIEWER ================= */
 
@@ -122,29 +137,39 @@
 .misv-viewer {
   width: 100%;
   height: 100%;
-  background: #101828;
+  background: radial-gradient(circle at center, #111827, #020617);
   border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.05);
 }
+
+/* subtle glow */
+.misv-viewer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(0,194,168,0.08), transparent 70%);
+  pointer-events: none;
+}
+
 
 /* gambar viewer */
 .misv-image {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  display: block;
 }
 
 /* placeholder */
 .misv-viewer-placeholder {
-  color: white;
-  opacity: 0.6;
+  color: #6B7280;
   font-size: 14px;
 }
+
 
 /* ================= FOOTER ================= */
 
@@ -154,8 +179,10 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 30px;
-  border-top: 1px solid #f2f4f7;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  background: rgba(17, 24, 39, 0.7);
 }
+
 
 /* ================= NAV BUTTON ================= */
 
@@ -166,61 +193,68 @@
 }
 
 .misv-nav-btn {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: #111827;
+  border: 1px solid #374151;
   padding: 6px 14px;
   border-radius: 8px;
   cursor: pointer;
-  color: #101828;
-  transition: 0.2s;
+  color: #E5E7EB;
+  transition: 0.25s;
 }
 
 .misv-nav-btn:hover {
-  background: #101828;
+  background: #00c2a8;
   color: white;
+  border-color: #00c2a8;
 }
+
 
 /* ================= SAVE BUTTON ================= */
 
 .misv-save-btn {
-  background: #009689;
+  background: linear-gradient(135deg, #00c2a8, #009689);
   color: white;
   border: none;
   padding: 8px 18px;
   border-radius: 10px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: 0.25s;
 }
 
 .misv-save-btn:hover {
-  background: #007f75;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(0,194,168,0.4);
 }
+
 
 /* ================= IMAGE COUNT ================= */
 
 .misv-img-count {
   margin: 0 10px;
   font-size: 13px;
-  color: #6b7280;
+  color: #9CA3AF;
 }
+
 
 /* ================= UPLOAD BUTTON ================= */
 
 .misv-upload-btn {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: #111827;
+  border: 1px solid #374151;
   padding: 6px 14px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 13px;
-  color: #101828;
-  transition: 0.2s;
+  color: #E5E7EB;
+  transition: 0.25s;
 }
 
 .misv-upload-btn:hover {
-  background: #009689;
-  color: #ffffff;
+  background: #00c2a8;
+  color: white;
+  border-color: #00c2a8;
 }
+
 
 /* ================= RESPONSIVE ================= */
 
@@ -231,11 +265,32 @@
 
   .misv-sidebar {
     width: 100%;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
     border-right: none;
   }
 
   .misv-viewer-wrapper {
     height: 500px;
   }
+}
+
+.misv-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+  margin-right: 12px;
+
+  border-radius: 10px;
+  cursor: pointer;
+
+  background: rgba(255,255,255,0.05);
+  transition: 0.2s;
+}
+
+.misv-back:hover {
+  background: rgba(255,255,255,0.1);
+  transform: translateX(-2px);
 }

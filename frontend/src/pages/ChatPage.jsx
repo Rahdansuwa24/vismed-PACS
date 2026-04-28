@@ -1,4 +1,6 @@
 ﻿import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import axios from "axios";
 import "../styles/chat.css";
 import logo from "../assets/vismed-logo.png";
@@ -10,12 +12,18 @@ import {
     Send,
     X,
     FileText,
+    FileUp,
+    Database, 
 } from "lucide-react";
 
 export default function ChatPage() {
+    const navigate = useNavigate();
     const [files, setFiles] = useState([]);
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
+    const [showUpload, setShowUpload] = useState(false);
+    const [loading, setLoading] = useState(false);
+
     const chatEndRef = useRef(null);
 
     const handleUpload = (event) => {
@@ -24,9 +32,9 @@ export default function ChatPage() {
     const mappedFiles = selectedFiles.map((file) => {
         const isImage = file.type.startsWith("image/");
         return {
-        name: file.name,
-        size: `${(file.size / 1024).toFixed(1)} KB`,
-        preview: isImage ? URL.createObjectURL(file) : null,
+            name: file.name,
+            size: `${(file.size / 1024).toFixed(1)} KB`,
+            preview: isImage ? URL.createObjectURL(file) : null,
         };
     });
 
@@ -48,9 +56,10 @@ export default function ChatPage() {
     };
 
     const sendMessage = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() || loading) return;
 
     const userPrompt = message;
+
     const userMsg = {
         role: "user",
         text: userPrompt,
@@ -58,6 +67,7 @@ export default function ChatPage() {
 
     setMessages((prev) => [...prev, userMsg]);
     setMessage("");
+    setLoading(true);
 
     setTimeout(() => {
         const textarea = document.querySelector(".chatx-input");
@@ -66,9 +76,7 @@ export default function ChatPage() {
 
     try {
         const response = await axios.get("/ai/chatbot", {
-        params: {
-            prompt: userPrompt,
-        },
+        params: { prompt: userPrompt },
         });
 
         const aiMsg = {
@@ -82,10 +90,12 @@ export default function ChatPage() {
         role: "ai",
         text:
             err.response?.data?.error ||
-            "Gagal menghubungi AI. Pastikan backend dan Ollama aktif.",
+            "Gagal menghubungi AI. Pastikan backend aktif.",
         };
 
         setMessages((prev) => [...prev, aiMsg]);
+    } finally {
+        setLoading(false);
     }
     };
 
@@ -97,140 +107,241 @@ export default function ChatPage() {
     };
 
     useEffect(() => {
-        chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages, loading]);
+
+    useEffect(() => {
+    const handleClickOutside = (e) => {
+    if (!e.target.closest(".chatx-upload-wrapper")) {
+        setShowUpload(false);
+    }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+}, []);
 
     return (
-        <div className="chatx-root">
-        <header className="chatx-header">
+    <div className="chatx-root">
+      {/* SIDEBAR */}
+        <aside className="chatx-sidebar">
+            <button
+            className="chatx-newchat"
+            onClick={() => setMessages([])}
+            >
+            + New Chat
+            </button>
+
+            <div className="chatx-history">
+            {messages.map((msg, i) => (
+                <div key={i} className="chatx-history-item">
+                {msg.text.slice(0, 30)}
+                </div>
+            ))}
+            </div>
+        </aside>
+
+        {/* MAIN */}
+        <div className="chatx-main">
+            <header className="chatx-header">
             <div className="chatx-logo-area">
-            <img src={logo} className="chatx-logo-img" alt="logo" />
-            <span className="chatx-logo-text">PACS Ai</span>
+                <div
+                    className="chatx-back"
+                    onClick={() => {
+                        if (window.history.length > 1) {
+                            navigate(-1);
+                        } else {
+                            navigate("/dashboard"); // fallback
+                        }
+                    }}
+                >
+                    <ArrowLeft size={20} />
+                </div>
+                <img src={logo} className="chatx-logo-img" alt="logo" />
+                <span className="chatx-logo-text">VisMed Ai</span>
             </div>
             <div className="chatx-status">● Online</div>
-        </header>
+            </header>
 
-        <div className="chatx-content">
-            {messages.length === 0 && (
-            <>
+            {/* CONTENT */}
+            <div className="chatx-content">
+
+            {/* EMPTY STATE */}
+            {messages.length === 0 ? (
+                <div className="chatx-empty">
                 <h2 className="chatx-title">
-                What can I help you analyze today?
+                    What can I help you analyze today?
                 </h2>
 
                 <div className="chatx-cards">
-                <div className="chatx-card">
+                    <div className="chatx-card">
                     <div className="chatx-card-icon">
-                    <Activity size={20} />
+                        <Activity size={20} />
                     </div>
                     <div>
-                    <div className="chatx-card-title">
+                        <div className="chatx-card-title">
                         Medical Imaging
-                    </div>
-                    <div className="chatx-card-desc">
+                        </div>
+                        <div className="chatx-card-desc">
                         Upload and analyze X-rays, MRIs, CT scans
+                        </div>
                     </div>
                     </div>
-                </div>
 
-                <div className="chatx-card">
+                    <div className="chatx-card">
                     <div className="chatx-card-icon">
-                    <Sparkles size={20} />
+                        <Sparkles size={20} />
                     </div>
                     <div>
-                    <div className="chatx-card-title">
+                        <div className="chatx-card-title">
                         Ask Questions
-                    </div>
-                    <div className="chatx-card-desc">
+                        </div>
+                        <div className="chatx-card-desc">
                         Get expert explanations
+                        </div>
                     </div>
                     </div>
                 </div>
                 </div>
+            ) : (
+                <div className="chatx-chat-area">
+                {messages.map((msg, index) => (
+                    <div
+                    key={index}
+                    className={`chatx-chat-row ${
+                        msg.role === "user"
+                        ? "chatx-user"
+                        : "chatx-ai"
+                    }`}
+                    >
+                    {msg.role === "ai" && (
+                        <div className="chatx-avatar">
+                        <Activity size={14} />
+                        </div>
+                    )}
 
-                <div className="chatx-message">
-                <div className="chatx-avatar">
-                    <Activity size={14} />
-                </div>
-                <div className="chatx-bubble">
-                    Upload your radiology images and I will analyze them.
-                </div>
-                </div>
-            </>
-            )}
+                    <div className="chatx-bubble">{msg.text}</div>
+                    </div>
+                ))}
 
-            <div className="chatx-chat-area">
-            {messages.map((msg, index) => (
-                <div
-                key={index}
-                className={`chatx-chat-row ${
-                    msg.role === "user"
-                    ? "chatx-user"
-                    : "chatx-ai"
-                }`}
-                >
-                {msg.role === "ai" && (
+                {loading && (
+                    <div className="chatx-chat-row chatx-ai">
                     <div className="chatx-avatar">
-                    <Activity size={14} />
+                        <Activity size={14} />
+                    </div>
+                    <div className="chatx-bubble chatx-loading">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
                     </div>
                 )}
 
-                <div className="chatx-bubble">
-                    {msg.text}
+                <div ref={chatEndRef} />
                 </div>
-                </div>
-            ))}
-
-            <div ref={chatEndRef} />
+            )}
             </div>
-        </div>
 
-        {files.length > 0 && (
+            {/* FILE BAR */}
+            {files.length > 0 && (
             <div className="chatx-filebar">
-            {files.map((file, index) => (
+                {files.map((file, index) => (
                 <div key={index} className="chatx-file-item">
-                {file.preview ? (
-                    <img src={file.preview} className="chatx-file-img" />
-                ) : (
+                    {file.preview ? (
+                    <img src={file.preview} className="chatx-file-img" alt="" />
+                    ) : (
                     <div className="chatx-file-icon">
-                    <FileText size={18} />
+                        <FileText size={18} />
                     </div>
-                )}
+                    )}
 
-                <div className="chatx-file-info">
+                    <div className="chatx-file-info">
                     <div className="chatx-file-name">{file.name}</div>
                     <div className="chatx-file-meta">{file.size}</div>
-                </div>
+                    </div>
 
-                <button
+                    <button
                     className="chatx-close"
                     onClick={() => removeFile(index)}
-                >
+                    >
                     <X size={16} />
-                </button>
+                    </button>
                 </div>
-            ))}
+                ))}
             </div>
         )}
-        
+
+        {/* INPUT */}
         <div className="chatx-inputbar">
-            <label className="chatx-upload-btn">
-            <Paperclip size={18} />
-            <input type="file" multiple hidden onChange={handleUpload} />
-            </label>
+            <div className="chatx-upload-wrapper">
+                <button
+                className="chatx-upload-btn"
+                onClick={() => setShowUpload((prev) => !prev)}
+                >
+                <Paperclip size={18} />
+                </button>
+
+                {/* DROPDOWN */}
+                {showUpload && (
+                <div className="chatx-upload-dropdown">
+
+                <label
+                    className="chatx-upload-item"
+                    onClick={() => {
+                        document.getElementById("fileInput").click();
+                    }}
+                    >
+                    <FileUp size={16} />
+                    <span className="chatx-upload-text">Upload PDF</span>
+
+                    <input
+                        id="fileInput"
+                        type="file"
+                        multiple
+                        accept=".pdf,image/*,.dcm"
+                        onChange={(e) => {
+                        handleUpload(e);
+                        setShowUpload(false);
+                        }}
+                        hidden
+                    />
+                </label>
+
+                <label
+                    className="chatx-upload-item"
+                    onClick={() => {
+                        window.location.href = "/orthanc";
+                        setShowUpload(false);
+                    }}
+                    >
+                    <Database size={16} />
+                    <span className="chatx-upload-text">DICOM Orthanc</span>
+                </label>
+
+                </div>
+                )}
+            </div>
 
             <textarea
-            className="chatx-input"
-            rows={1}
-            value={message}
-            placeholder="Type your message..."
-            onInput={handleInput}
-            onKeyDown={handleKeyDown}
+                className="chatx-input"
+                rows={1}
+                value={message}
+                placeholder="Type your message..."
+                onInput={handleInput}
+                onKeyDown={handleKeyDown}
+                disabled={loading}
             />
 
-            <button className="chatx-send-btn" onClick={sendMessage}>
-            <Send size={18} />
+            <button
+                className="chatx-send-btn"
+                onClick={sendMessage}
+                disabled={loading}
+            >
+                <Send size={18} />
             </button>
+            </div>
         </div>
-        </div>
+
+    </div>
     );
 }

@@ -1,19 +1,25 @@
+/* ================= ROOT ================= */
+
 .vismedX_container {
   font-family: "Inter", sans-serif;
-  background: #f9fafb;
+  background: linear-gradient(135deg, #0f172a, #111827);
   padding: 20px;
-  color: #101828;
+  color: #E5E7EB;
 }
 
-/* NAVBAR */
+
+/* ================= NAVBAR ================= */
+
 .vismedX_navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #ffffff;
+  background: rgba(17, 24, 39, 0.7);
   padding: 16px 20px;
   border-radius: 20px;
-  box-shadow: 0 6px 25px rgba(0,0,0,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
   margin-bottom: 35px;
 }
 
@@ -22,96 +28,116 @@
   align-items: center;
   gap: 10px;
 }
+
 .vismedX_logoBox h2 {
-  color: #009689;
+  color: #00c2a8;
 }
 
 .vismedX_logoImg {
   width: 40px;
 }
 
-/* STATUS */
+
+/* ================= STATUS ================= */
+
 .vismedX_status {
-  background: #eefdfb;
+  background: rgba(0, 194, 168, 0.1);
   padding: 6px 14px;
   border-radius: 20px;
-  color: #009689;
+  color: #00c2a8;
+  border: 1px solid rgba(0,194,168,0.3);
 }
 
 .vismedX_dot {
   width: 8px;
   height: 8px;
-  background: #00c896;
+  background: #00c2a8;
   border-radius: 50%;
   margin-right: 6px;
   display: inline-block;
+  box-shadow: 0 0 8px #00c2a8;
 }
 
-/* HERO */
+
+/* ================= HERO ================= */
+
 .vismedX_hero {
   text-align: center;
   margin-bottom: 30px;
 }
 
-/* BADGE */
+
+/* ================= BADGE ================= */
+
 .vismedX_badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: rgba(31, 41, 55, 0.7);
+  border: 1px solid rgba(255,255,255,0.08);
   padding: 6px 14px;
   border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
   margin-bottom: 20px;
 }
 
 .vismedX_badgeIcon {
-  color: #009689;
+  color: #00c2a8;
 }
 
-/* GRID */
+
+/* ================= GRID ================= */
+
 .vismedX_cardGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
 
-/* CARD */
+
+/* ================= CARD ================= */
+
 .vismedX_card {
-  background: #fff;
+  background: #111827;
   border-radius: 16px;
   padding: 22px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #1F2937;
   position: relative;
   overflow: hidden;
-  transition: all 0.25s ease;
+  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-/* HOVER FIX */
-.vismedX_card:hover {
-  transform: translateY(-5px);
-  border: 1px solid #009689;
-  outline: 2px solid #009689;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.1);
-  background: linear-gradient(
-    135deg,
-    #ffffff 10%,
-    #e0f7f5 50%,
-    #b2ebe6 80%,
-    #009689 180%
-  );
+/* glow effect */
+.vismedX_card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent, rgba(0,194,168,0.08), transparent);
+  opacity: 0;
+  transition: 0.3s;
 }
 
-/* ICON */
+.vismedX_card:hover::before {
+  opacity: 1;
+}
+
+.vismedX_card:hover {
+  transform: translateY(-6px) scale(1.01);
+  border-color: #00c2a8;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+}
+
+
+/* ================= ICON ================= */
+
 .vismedX_iconBox {
   width: 56px;
   height: 56px;
-  background: #eefdfb;
-  color: #009689;
+  background: rgba(0,194,168,0.1);
+  color: #00c2a8;
   border-radius: 14px;
   display: flex;
   align-items: center;
@@ -120,7 +146,7 @@
 }
 
 .vismedX_card:hover .vismedX_iconBox {
-  background: linear-gradient(135deg, #009689, #00c2a8);
+  background: linear-gradient(135deg, #00c2a8, #009689);
   color: white;
 }
 
@@ -128,31 +154,39 @@
   stroke: white;
 }
 
-/* TEXT */
+
+/* ================= TEXT ================= */
+
 .vismedX_title {
   font-size: 18px;
   font-weight: 600;
+  color: #F9FAFB;
 }
 
 .vismedX_sub {
-  color: #009689;
+  color: #00c2a8;
   font-size: 13px;
 }
 
 .vismedX_desc {
-  color: #667085;
+  color: #9CA3AF;
   font-size: 14px;
 }
 
-/* TAG */
+
+/* ================= TAG ================= */
+
 .vismedX_tag {
-  background: #f2f4f7;
+  background: #1F2937;
   padding: 6px 12px;
   border-radius: 999px;
   font-size: 12px;
+  color: #D1D5DB;
 }
 
-/* FOOTER CARD */
+
+/* ================= FOOTER CARD ================= */
+
 .vismedX_cardFooter {
   display: flex;
   justify-content: space-between;
@@ -165,7 +199,7 @@
   display: flex;
   gap: 5px;
   align-items: center;
-  color: #009689;
+  color: #00c2a8;
   transition: 0.3s;
   cursor: pointer;
 }
@@ -175,14 +209,16 @@
   transform: translateX(0);
 }
 
-/* LINE */
+
+/* ================= LINE ================= */
+
 .vismedX_bottomLine {
   position: absolute;
   bottom: 0;
   left: 50%;
   width: 0%;
   height: 3px;
-  background: linear-gradient(90deg, #009689, #00c2a8);
+  background: linear-gradient(90deg, #00c2a8, #009689);
   transition: all 0.4s ease;
 }
 
@@ -191,7 +227,9 @@
   left: 0;
 }
 
-/* STATS */
+
+/* ================= STATS ================= */
+
 .vismedX_statsGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -200,17 +238,17 @@
 }
 
 .vismedX_statCard {
-  background: #fff;
+  background: #111827;
   border-radius: 16px;
   padding: 18px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #1F2937;
   transition: 0.25s;
 }
 
 .vismedX_statCard:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-  border-color: #009689;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+  border-color: #00c2a8;
 }
 
 .vismedX_statRow {
@@ -222,25 +260,27 @@
 .vismedX_statIconLarge {
   width: 44px;
   height: 44px;
-  background: #eefdfb;
-  color: #009689;
+  background: rgba(0,194,168,0.1);
+  color: #00c2a8;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 12px;
 }
 
-/* PROGRESS */
+
+/* ================= PROGRESS ================= */
+
 .vismedX_progress {
   height: 6px;
-  background: #e5e7eb;
+  background: #1F2937;
   border-radius: 10px;
   margin-top: 10px;
 }
 
 .vismedX_bar {
   height: 100%;
-  background: #009689;
+  background: linear-gradient(90deg, #00c2a8, #009689);
   border-radius: 10px;
   animation: vismedX_load 1.2s ease;
 }
@@ -255,18 +295,22 @@
 
 .vismedX_growth {
   font-size: 12px;
-  color: #667085;
+  color: #9CA3AF;
 }
 
-/* FOOTER */
+
+/* ================= FOOTER ================= */
+
 .vismedX_footer {
   text-align: center;
   margin-top: 40px;
   font-size: 12px;
-  color: #98a2b3;
+  color: #6B7280;
 }
 
-/* RESPONSIVE */
+
+/* ================= RESPONSIVE ================= */
+
 @media (max-width: 1024px) {
   .vismedX_cardGrid,
   .vismedX_statsGrid {

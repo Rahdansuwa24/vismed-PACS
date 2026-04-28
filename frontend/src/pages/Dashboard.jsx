@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/dashboard.css";
 import logo from "../assets/vismed-logo.png";
 
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     scan: 0,
     device: 0,
@@ -47,6 +49,7 @@ const Dashboard = () => {
       tag: "MWL",
       desc: "Manage and schedule medical imaging procedures with comprehensive worklist management",
       info: "125 Active Studies",
+      path: "/modality",
     },
     {
       icon: <Video className="vismedX_svg" size={28} />,
@@ -54,6 +57,7 @@ const Dashboard = () => {
       tag: "Video Processing",
       desc: "Convert and process medical imaging videos with advanced compression and format support",
       info: "42 Conversions Today",
+      path: "/post-pacs",
     },
     {
       icon: <Brain className="vismedX_svg" size={28} />,
@@ -61,6 +65,7 @@ const Dashboard = () => {
       tag: "Intelligent Analysis",
       desc: "AI-powered diagnostic assistance and automated image analysis for enhanced accuracy",
       info: "98.7% Accuracy Rate",
+      path: "/chat-ai",
     },
   ];
 
@@ -113,7 +118,11 @@ const Dashboard = () => {
             <div className="vismedX_cardFooter">
               <div className="vismedX_tag">{item.info}</div>
 
-              <div className="vismedX_launch">
+              <div
+                className="vismedX_launch"
+                onClick={() => navigate(item.path)}
+                style={{ cursor: "pointer" }}
+              >
                 Launch <ArrowRight size={14} />
               </div>
             </div>
