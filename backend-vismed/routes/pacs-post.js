@@ -6,6 +6,7 @@ const FormData = require("form-data");
 const fs = require("fs");
 const upload = multer({ dest: "tmp/" });
 const PACS_URL = process.env.PACS_URL;
+const endpoint = process.env.endpoint
 
 router.get("/studies", async function (req, res) {
   try {
@@ -21,10 +22,9 @@ router.get("/studies", async function (req, res) {
     res.status(500).json({ error: err.message });
   }
 });
-//http://10.9.23.18:4000/api/mwl
 router.get("/get-mwl", async function (req, res) {
   try {
-    const response = await axios.get(`http://10.9.23.18:4000/api/mwl`);
+    const response = await axios.get(`${endpoint}/mwl`);
 
     res.json(response.data);
 
@@ -33,54 +33,6 @@ router.get("/get-mwl", async function (req, res) {
     res.status(500).json({ error: err.message });
   }
 });
-
-// router.post("/upload-images", async (req, res) => {
-//   try {
-//     const response = await axios({
-//       method: "post",
-//       url: "http://10.9.23.18/api/upload-images",
-
-//       data: req, // 🔥 kirim stream, bukan req.body
-
-//       headers: {
-//         "content-type": req.headers["content-type"], 
-//       },
-
-//       maxContentLength: Infinity,
-//       maxBodyLength: Infinity
-//     });
-
-//     res.json(response.data);
-
-//   } catch (err) {
-//     console.error("UPLOAD ERROR:", err.message);
-//     res.status(500).json({ error: err.message });
-//   }
-// });
-
-// router.post("/upload-videos", async (req, res) => {
-//   try {
-//     const response = await axios({
-//       method: "post",
-//       url: "http://10.9.23.18:4000/api/upload-video",
-
-//       data: req, // 🔥 kirim stream, bukan req.body
-
-//       headers: {
-//         ...req.headers,
-//       },
-
-//       maxContentLength: Infinity,
-//       maxBodyLength: Infinity
-//     });
-
-//     res.json(response.data);
-
-//   } catch (err) {
-//     console.error("UPLOAD ERROR:", err.message);
-//     res.status(500).json({ error: err.message });
-//   }
-// });
 
 router.post("/upload-videos", upload.single("video"), async (req, res) => {
   let tempPath = req.file?.path;
@@ -104,7 +56,7 @@ router.post("/upload-videos", upload.single("video"), async (req, res) => {
     form.append("time", req.body.time);
 
     const response = await axios.post(
-      "http://10.9.23.18:4000/api/upload-video",
+     `${endpoint}/upload-video` ,
       form,
       {
         headers: form.getHeaders(),
