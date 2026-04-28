@@ -149,7 +149,7 @@ export default function MISViewer() {
             alt="logo"
           />
           <div>
-            <div className="misv-title">VISMED Imaging System</div>
+            <h2 className="misv-title">VisMed Imaging System</h2>
             <div className="misv-subtitle">
               Radiology Image Review & Patient Record Assignment
             </div>
