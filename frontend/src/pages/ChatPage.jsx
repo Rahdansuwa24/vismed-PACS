@@ -1,11 +1,8 @@
 ﻿import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
 import axios from "axios";
-import "../styles/chat.css";
-import logo from "../assets/vismed-logo.png";
-
 import {
+    ArrowLeft,
     Activity,
     Sparkles,
     Paperclip,
@@ -13,129 +10,319 @@ import {
     X,
     FileText,
     FileUp,
-    Database, 
+    Database,
+    Trash2,
 } from "lucide-react";
+
+import "../styles/chat.css";
+import logo from "../assets/vismed-logo.png";
 
 export default function ChatPage() {
     const navigate = useNavigate();
+    const fileInputRef = useRef(null);
+    const chatEndRef = useRef(null);
+
+    // -------------------------------------------------------------------------
+    // State
+    // -------------------------------------------------------------------------
     const [files, setFiles] = useState([]);
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [showUpload, setShowUpload] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const chatEndRef = useRef(null);
+    // State untuk history sidebar
+    const [chats, setChats] = useState([]);
+    const [activeChatId, setActiveChatId] = useState(null);
+
+    // -------------------------------------------------------------------------
+    // Event Handlers
+    // -------------------------------------------------------------------------
 
     const handleUpload = (event) => {
-    const selectedFiles = Array.from(event.target.files || []);
+        const selectedFiles = Array.from(event.target.files || []);
 
-    const mappedFiles = selectedFiles.map((file) => {
-        const isImage = file.type.startsWith("image/");
-        return {
-            name: file.name,
-            size: `${(file.size / 1024).toFixed(1)} KB`,
-            preview: isImage ? URL.createObjectURL(file) : null,
-        };
-    });
+        const mappedFiles = selectedFiles.map((file) => {
+            const isImage = file.type.startsWith("image/");
+            return {
+                name: file.name,
+                size: `${(file.size / 1024).toFixed(1)} KB`,
+                preview: isImage ? URL.createObjectURL(file) : null,
+                raw: file,
+            };
+        });
 
-    setFiles((prev) => [...prev, ...mappedFiles]);
+        setFiles((prev) => [...prev, ...mappedFiles]);
+        event.target.value = null;
     };
 
     const removeFile = (index) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
+        setFiles((prev) => prev.filter((_, i) => i !== index));
     };
 
     const handleInput = (e) => {
-    const textarea = e.target;
-    setMessage(textarea.value);
+        const textarea = e.target;
+        setMessage(textarea.value);
 
-    textarea.style.height = "auto";
-    const maxHeight = 120;
-    textarea.style.height =
-        Math.min(textarea.scrollHeight, maxHeight) + "px";
-    };
-
-    const sendMessage = async () => {
-    if (!message.trim() || loading) return;
-
-    const userPrompt = message;
-
-    const userMsg = {
-        role: "user",
-        text: userPrompt,
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
-    setMessage("");
-    setLoading(true);
-
-    setTimeout(() => {
-        const textarea = document.querySelector(".chatx-input");
-        if (textarea) textarea.style.height = "42px";
-    }, 0);
-
-    try {
-        const response = await axios.get("/ai/chatbot", {
-        params: { prompt: userPrompt },
-        });
-
-        const aiMsg = {
-        role: "ai",
-        text: response.data.response || "Tidak ada response dari AI.",
-        };
-
-        setMessages((prev) => [...prev, aiMsg]);
-    } catch (err) {
-        const aiMsg = {
-        role: "ai",
-        text:
-            err.response?.data?.error ||
-            "Gagal menghubungi AI. Pastikan backend aktif.",
-        };
-
-        setMessages((prev) => [...prev, aiMsg]);
-    } finally {
-        setLoading(false);
-    }
+        textarea.style.height = "auto";
+        const maxHeight = 120;
+        textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + "px";
     };
 
     const handleKeyDown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-    }
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
     };
 
+    // -------------------------------------------------------------------------
+    // Data Functions
+    // -------------------------------------------------------------------------
+
+    const updateChatMessages = (chatId, newMessages) => {
+        setChats((prev) =>
+            prev.map((chat) =>
+                chat.id === chatId
+                    ? {
+                        ...chat,
+                        messages: newMessages,
+                        title:
+                            chat.messages.length === 0 && newMessages.length > 0
+                                ? newMessages[0]?.text?.slice(0, 25) || "New Chat"
+                                : chat.title,
+                    }
+                    : chat
+            )
+        );
+    };
+
+    const sendMessage = async () => {
+        if ((!message.trim() && files.length === 0) || loading) return;
+
+        let chatId = activeChatId;
+
+        // Auto create chat
+        if (!chatId) {
+            const newChat = {
+                id: Date.now(),
+                title: "New Chat",
+                messages: [],
+                createdAt: new Date(),
+            };
+
+            setChats((prev) => [newChat, ...prev]);
+            setActiveChatId(newChat.id);
+            chatId = newChat.id;
+        }
+
+        const userPrompt = message;
+        const currentFiles = [...files];
+        const fileNames = currentFiles.map(f => f.name).join(", ");
+
+        const userMsg = {
+            role: "user",
+            text: userPrompt,
+            files: currentFiles,
+        };
+
+        // Update message + chat
+        const updatedMessages = [...messages, userMsg];
+        setMessages(updatedMessages);
+        updateChatMessages(chatId, updatedMessages);
+
+        setMessage("");
+        setFiles([]);
+        setLoading(true);
+
+        try {
+            const response = await axios.get("/ai/chatbot", {
+                params: {
+                    prompt: userPrompt + (fileNames ? ` [FILES: ${fileNames}]` : ""),
+                },
+            });
+
+            const aiMsg = {
+                role: "ai",
+                text: response.data.response || "Tidak ada response dari AI.",
+            };
+
+            setMessages((prev) => {
+                const updated = [...prev, aiMsg];
+
+                setChats((prevChats) =>
+                    prevChats.map((chat) =>
+                        chat.id === chatId
+                            ? { ...chat, messages: updated }
+                            : chat
+                    )
+                );
+
+                return updated;
+            });
+
+        } catch (err) {
+            const aiMsg = {
+                role: "ai",
+                text:
+                    err.response?.data?.error ||
+                    "Gagal menghubungi AI. Pastikan backend aktif.",
+            };
+
+            setMessages((prev) => {
+                const updated = [...prev, aiMsg];
+
+                setChats((prevChats) =>
+                    prevChats.map((chat) =>
+                        chat.id === chatId
+                            ? { ...chat, messages: updated }
+                            : chat
+                    )
+                );
+
+                return updated;
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // -------------------------------------------------------------------------
+    // Sidebar Functions
+    // -------------------------------------------------------------------------
+
+    const deleteChat = (chatId) => {
+        if (!window.confirm("Hapus chat ini?")) return;
+
+        const updatedChats = chats.filter(c => c.id !== chatId);
+        setChats(updatedChats);
+
+        if (chatId === activeChatId) {
+            if (updatedChats.length > 0) {
+                setActiveChatId(updatedChats[0].id);
+                setMessages(updatedChats[0].messages);
+            } else {
+                setActiveChatId(null);
+                setMessages([]);
+            }
+        }
+    };
+
+    const clearAllChats = () => {
+        if (!window.confirm("Hapus semua chat?")) return;
+
+        setChats([]);
+        setMessages([]);
+        setActiveChatId(null);
+        localStorage.removeItem("chat_history");
+    };
+
+    // -------------------------------------------------------------------------
+    // Effects
+    // -------------------------------------------------------------------------
+
     useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, loading]);
 
     useEffect(() => {
-    const handleClickOutside = (e) => {
-    if (!e.target.closest(".chatx-upload-wrapper")) {
-        setShowUpload(false);
-    }
-    };
+        const handleClickOutside = (e) => {
+            if (!e.target.closest(".chatx-upload-wrapper")) {
+                setShowUpload(false);
+            }
+        };
 
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-}, []);
+        document.addEventListener("click", handleClickOutside);
+        return () => document.removeEventListener("click", handleClickOutside);
+    }, []);
+
+    // Load chat from localStorage
+    useEffect(() => {
+        const saved = localStorage.getItem("chat_history");
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            setChats(parsed);
+
+            if (parsed.length > 0) {
+                setActiveChatId(parsed[0].id);
+                setMessages(parsed[0].messages);
+            }
+        }
+    }, []);
+
+    // Save chat to localStorage
+    useEffect(() => {
+        localStorage.setItem("chat_history", JSON.stringify(chats));
+    }, [chats]);
+
+    // Update messages when switching chats
+    useEffect(() => {
+        if (!activeChatId) return;
+
+        const activeChat = chats.find(c => c.id === activeChatId);
+        if (activeChat) {
+            setMessages(activeChat.messages);
+        }
+    }, [activeChatId, chats]);
+
+    // -------------------------------------------------------------------------
+    // Render
+    // -------------------------------------------------------------------------
 
     return (
     <div className="chatx-root">
       {/* SIDEBAR */}
         <aside className="chatx-sidebar">
             <button
-            className="chatx-newchat"
-            onClick={() => setMessages([])}
-            >
-            + New Chat
+                className="chatx-newchat"
+                onClick={() => {
+                    const newChat = {
+                    id: Date.now(),
+                    title: "New Chat",
+                    messages: [],
+                    createdAt: new Date(),
+                    };
+
+                    setChats((prev) => [newChat, ...prev]);
+                    setActiveChatId(newChat.id);
+                    setMessages([]);
+                }}
+                >
+                + New Chat
+            </button>
+
+            <button
+                className="chatx-clear-btn"
+                onClick={clearAllChats}
+                >
+                Clear All
             </button>
 
             <div className="chatx-history">
-            {messages.map((msg, i) => (
-                <div key={i} className="chatx-history-item">
-                {msg.text.slice(0, 30)}
+            {chats.map((chat) => (
+                <div
+                    key={chat.id}
+                    className={`chatx-history-item ${
+                    chat.id === activeChatId ? "active" : ""
+                    }`}
+                    onClick={() => {
+                    setActiveChatId(chat.id);
+                    setMessages(chat.messages);
+                    }}
+                >
+                    <div className="chatx-history-content">
+                        <span>{chat.title}</span>
+
+                        <button
+                            className="chatx-delete-btn"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                deleteChat(chat.id);
+                            }}
+                        >
+                            <Trash2 size={14} />
+                        </button>
+                    </div>
                 </div>
             ))}
             </div>
@@ -220,7 +407,29 @@ export default function ChatPage() {
                         </div>
                     )}
 
-                    <div className="chatx-bubble">{msg.text}</div>
+                    <div className="chatx-bubble">
+                        {msg.text && <div>{msg.text}</div>}
+                        {msg.files && msg.files.length > 0 && (
+                            <div className="chatx-bubble-files">
+                                {msg.files.map((file, i) => (
+                                    <div key={i} className="chatx-bubble-file">
+                                        {file.preview ? (
+                                            <img
+                                                src={file.preview}
+                                                className="chatx-bubble-img"
+                                                alt=""
+                                            />
+                                        ) : (
+                                            <div className="chatx-bubble-file-doc">
+                                                <FileText size={16} />
+                                                <span>{file.name}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                     </div>
                 ))}
 
@@ -285,23 +494,18 @@ export default function ChatPage() {
                 {showUpload && (
                 <div className="chatx-upload-dropdown">
 
-                <label
-                    className="chatx-upload-item"
-                    onClick={() => {
-                        document.getElementById("fileInput").click();
-                    }}
-                    >
+                <label className="chatx-upload-item">
                     <FileUp size={16} />
                     <span className="chatx-upload-text">Upload PDF</span>
 
                     <input
-                        id="fileInput"
+                        ref={fileInputRef}
                         type="file"
                         multiple
                         accept=".pdf,image/*,.dcm"
                         onChange={(e) => {
-                        handleUpload(e);
-                        setShowUpload(false);
+                            handleUpload(e);
+                            setShowUpload(false);
                         }}
                         hidden
                     />
