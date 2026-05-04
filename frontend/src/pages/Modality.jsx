@@ -1,61 +1,52 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import axios from "axios";
 import "../styles/Modal.css";
 import logo from "../assets/vismed-logo.png";
 
 export default function HistoryPage() {
     const navigate = useNavigate();
     const [data, setData] = useState([]);
-    const [filtered, setFiltered] = useState([]);
     const [modality, setModality] = useState("");
 
     const [selected, setSelected] = useState(null); // 🔥 modal state
 
     useEffect(() => {
-        const historyData = [
-        {
-            name: "Doe Pierre",
-            modality: "CT",
-            date: "2026-01-11 09:40",
-            desc: "CT Lung Scan",
-            body: "Lung",
-            doctor: "Dr. Wira",
-            result: "Mild inflammation",
-            accession: "CT20260111-033",
-        },
-        {
-            name: "John Wick",
-            modality: "XR",
-            date: "2026-02-03 13:10",
-            desc: "Chest X-Ray",
-            body: "Chest",
-            doctor: "Dr. Andika",
-            result: "Normal",
-            accession: "XR20260203-102",
-        },
-        {
-            name: "Alice Johnson",
-            modality: "MR",
-            date: "2026-03-15 08:25",
-            desc: "Brain MRI",
-            body: "Brain",
-            doctor: "Dr. Satria",
-            result: "Small lesion detected",
-            accession: "MR20260315-221",
-        },
-        ];
+        axios.get("http://localhost:3000/mwl/get-mwl")
+        .then((res) => {
+            const mapped = res.data.map((p, index) => {
+                const rawId = p.id || p.patientID || p.PatientID || index;
+                const id = p.id ? `${p.id}_${index}` : rawId;
 
-        setData(historyData);
-        setFiltered(historyData);
+                return {
+                    id,
+                    rawId,
+                    name: p.name || p.PatientName || "-",
+                    modality: p.modality || p.Modality || "-",
+                    date: [p.date, p.time].filter(Boolean).join(" "),
+                    desc: p.study || p.StudyDescription || p.description || "-",
+                    body: p.bodypart || p.BodyPartExamined || "-",
+                    doctor: p.doctor || p.ReferringPhysicianName || "-",
+                    result: p.result || "-",
+                    accession: id,
+                };
+            });
+
+            setData(mapped);
+        })
+        .catch((err) => {
+            console.error("ERROR:", err);
+            setData([]);
+        });
     }, []);
 
-    useEffect(() => {
+    const filtered = useMemo(() => {
         if (!modality) {
-        setFiltered(data);
-        } else {
-        setFiltered(data.filter((item) => item.modality === modality));
+            return data;
         }
+
+        return data.filter((item) => item.modality === modality);
     }, [modality, data]);
 
     return (
@@ -118,6 +109,7 @@ export default function HistoryPage() {
                     <div className="vhx-item-meta">
                     <span>{item.modality}</span>
                     <span>{item.date}</span>
+                    <span>Accession: {item.accession}</span>
                     </div>
                     <div className="vhx-item-desc">{item.desc}</div>
                 </div>
@@ -155,18 +147,18 @@ export default function HistoryPage() {
                     <span>Body Part</span>
                     <strong>{selected.body}</strong>
                 </div>
-                <div>
+                {/* <div>
                     <span>Doctor</span>
                     <strong>{selected.doctor}</strong>
-                </div>
+                </div> */}
                 <div>
                     <span>Accession</span>
                     <strong>{selected.accession}</strong>
                 </div>
-                <div>
+                {/* <div>
                     <span>Result</span>
                     <strong>{selected.result}</strong>
-                </div>
+                </div> */}
                 </div>
 
                 <div className="vhx-modal-footer">

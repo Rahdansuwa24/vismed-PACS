@@ -161,12 +161,17 @@ export default function ChatPage() {
                 return updated;
             });
 
+            const viewerUrl = response.data.viewerLinks?.[0]?.viewerUrl;
+
+            if (viewerUrl) {
+                window.location.href = viewerUrl;
+            }
+
         } catch (err) {
+            console.error("AI ERROR:", err);
             const aiMsg = {
                 role: "ai",
-                text:
-                    err.response?.data?.error ||
-                    "Gagal menghubungi AI. Pastikan backend aktif.",
+                text: "Layanan AI sedang tidak tersedia. Silakan coba lagi nanti.",
             };
 
             setMessages((prev) => {
@@ -185,6 +190,34 @@ export default function ChatPage() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const renderMessageText = (text) => {
+        const parts = String(text).split(/(https?:\/\/[^\s]+)/g);
+
+        return parts.map((part, index) => {
+            if (/^https?:\/\//i.test(part)) {
+                const match = part.match(/^(.*?)([).,;!?]+)?$/);
+                const href = match?.[1] || part;
+                const trailing = match?.[2] || "";
+
+                return (
+                    <span key={index}>
+                        <a
+                            href={href}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="chatx-link"
+                        >
+                            {href}
+                        </a>
+                        {trailing}
+                    </span>
+                );
+            }
+
+            return part;
+        });
     };
 
     // -------------------------------------------------------------------------
@@ -408,7 +441,11 @@ export default function ChatPage() {
                     )}
 
                     <div className="chatx-bubble">
-                        {msg.text && <div>{msg.text}</div>}
+                        {msg.text && (
+                            <div className="chatx-message-text">
+                                {renderMessageText(msg.text)}
+                            </div>
+                        )}
                         {msg.files && msg.files.length > 0 && (
                             <div className="chatx-bubble-files">
                                 {msg.files.map((file, i) => (

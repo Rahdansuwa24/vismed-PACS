@@ -227,6 +227,16 @@
   word-wrap: break-word;
 }
 
+.chatx-message-text {
+  white-space: pre-wrap;
+}
+
+.chatx-link {
+  color: #4dd4ff;
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}
+
 .chatx-user .chatx-bubble {
   background: linear-gradient(135deg, #00c2a8, #009689);
   color: white;
