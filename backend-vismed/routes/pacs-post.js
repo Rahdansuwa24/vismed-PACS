@@ -24,7 +24,7 @@ router.get("/studies", async function (req, res) {
 });
 router.get("/get-mwl", async function (req, res) {
   try {
-    const response = await axios.get(`${endpoint}/mwl`);
+    const response = await axios.get(`${endpoint}/mwl-get`);
 
     res.json(response.data);
 
