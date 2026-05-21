@@ -3,6 +3,8 @@ import ViewerPage from "./pages/viewerPage";
 import ChatPage from "./pages/ChatPage";
 import Dashboard from "./pages/Dashboard";
 import Modality from "./pages/Modality";
+import DicomWorklistPage from './pages/DicomWorklistPage'
+import DicomViewerPage from './pages/DicomViewerPage'
 
 function App() {
   return (
@@ -12,6 +14,8 @@ function App() {
         <Route path="/chat-ai" element={<ChatPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/modality" element={<Modality />} />
+        <Route path="/dicom-wl" element={<DicomWorklistPage />} />
+        <Route path="/dicom-viewer" element={<DicomViewerPage />} />
       </Routes>
     </BrowserRouter>
   );
