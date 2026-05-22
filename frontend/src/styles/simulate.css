@@ -1,0 +1,176 @@
+.sim-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a, #111827);
+  color: #e5e7eb;
+}
+
+.sim-header {
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  padding: 14px 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(17, 24, 39, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+.sim-header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.sim-icon-button {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #e5e7eb;
+  background: rgba(255, 255, 255, 0.06);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+
+.sim-icon-button:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateX(-2px);
+}
+
+.sim-logo {
+  width: 40px;
+}
+
+.sim-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #00c2a8;
+}
+
+.sim-subtitle {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.sim-content {
+  width: min(980px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 36px 0;
+}
+
+.sim-form {
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+}
+
+.sim-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.sim-field {
+  display: grid;
+  gap: 7px;
+}
+
+.sim-field span {
+  font-size: 13px;
+  font-weight: 600;
+  color: #d1d5db;
+}
+
+.sim-field input,
+.sim-field select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  background: #0b1220;
+  color: #f9fafb;
+  padding: 9px 11px;
+  outline: none;
+}
+
+.sim-field input:focus,
+.sim-field select:focus {
+  border-color: #00c2a8;
+  box-shadow: 0 0 0 2px rgba(0, 194, 168, 0.22);
+}
+
+.sim-submit {
+  margin-top: 22px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  background: #00a991;
+  color: #ffffff;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.sim-submit:hover:not(:disabled) {
+  background: #008f7c;
+}
+
+.sim-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.sim-status {
+  margin-top: 16px;
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.sim-status strong,
+.sim-status span {
+  display: block;
+}
+
+.sim-status span {
+  margin-top: 2px;
+  color: #d1d5db;
+  font-size: 13px;
+}
+
+.sim-status-success {
+  border: 1px solid rgba(0, 194, 168, 0.35);
+  background: rgba(0, 194, 168, 0.12);
+  color: #5eead4;
+}
+
+.sim-status-error {
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  background: rgba(127, 29, 29, 0.35);
+  color: #fca5a5;
+}
+
+@media (max-width: 720px) {
+  .sim-header {
+    padding: 14px 18px;
+  }
+
+  .sim-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sim-submit {
+    width: 100%;
+  }
+}

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Form Rekam Medis</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f7fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      width: 380px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #1e90ff;
+    }
+
+    label {
+      margin-top: 10px;
+      display: block;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      margin-top: 15px;
+      width: 100%;
+      padding: 10px;
+      background: #1e90ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #187bdb;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Input Rekam Medis</h2>
+
+  <form action="/simulate/kirim-mwl" method="POST">
+
+    <label>Nama Pasien</label>
+    <input type="text" name="patientName" required>
+
+    <label>No RM (Patient ID)</label>
+    <input type="text" name="patientID" required>
+
+    <label>Tanggal Lahir</label>
+    <input type="date" name="birthDate" required>
+
+    <label>Jenis Kelamin</label>
+    <select name="sex">
+      <option value="M">Male</option>
+      <option value="F">Female</option>
+    </select>
+
+    <label>Accession Number</label>
+    <input type="text" name="accessionNumber" required>
+
+    <label>Deskripsi Pemeriksaan</label>
+    <input type="text" name="procedureDesc" value="CT THORAX" required>
+
+    <label>Tanggal Jadwal</label>
+    <input type="date" name="scheduleDate" required>
+
+    <label>Waktu Jadwal</label>
+    <input type="time" name="scheduleTime" required>
+
+    <!-- <label>Modality</label>
+    <select name="modality">
+      <option value="CT">CT</option>
+      <option value="MR">MRI</option>
+      <option value="ES">Endo</option>
+      <option value="CR">X-Ray</option>
+      <option value="XC">XC</option>
+    </select>
+
+    <label>AE Title (Modality)</label>
+    <input type="text" name="aet" value="MODALITY1" required> -->
+
+    <button type="submit">Kirim ke MWL</button>
+
+  </form>
+</div>
+
+</body>
+</html>

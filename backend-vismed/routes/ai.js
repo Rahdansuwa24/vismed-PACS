@@ -37,7 +37,10 @@ function logBackendError(scope, err) {
 const OLLAMA_HOST = normalizeOllamaHost(
   process.env.OLLAMA_HOST || "http://10.9.23.205:11434/api"
 );
-const OLLAMA_MODEL = (process.env.OLLAMA_MODEL || "llama3.2:latest").trim();
+const OLLAMA_MODEL = (
+  process.env.OLLAMA_MODEL || "MedAIBase/MedGemma1.5:4b"
+).trim();
+const OLLAMA_TEMPERATURE = Number(process.env.OLLAMA_TEMPERATURE || 0.2);
 const DICOM_BRIDGE_URL = normalizeBaseUrl(process.env.DICOM_BRIDGE_URL);
 const DICOM_CONTEXT_ENABLED = process.env.DICOM_CONTEXT_ENABLED !== "false";
 const PACS_URL = normalizeBaseUrl(process.env.PACS_URL);
@@ -59,6 +62,88 @@ function shouldUseDicomContext(prompt) {
   return /dicom|orthanc|pacs|patient|pasien|nama\s*pasien|study|studi|series|modality|modalitas|ct|mri|xray|rontgen|accession|rekam\s*medis|no\.?\s*rm|nomor\s*rm|medical\s*record/i.test(
     prompt
   );
+}
+
+function toTitleCase(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
+}
+
+function normalizeDicomPersonName(value) {
+  return String(value || "")
+    .split("^")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map(toTitleCase)
+    .join(" ");
+}
+
+function normalizeDicomContextValue(value) {
+  if (typeof value === "string") {
+    return value.includes("^") ? normalizeDicomPersonName(value) : value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(normalizeDicomContextValue);
+  }
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [
+        key,
+        normalizeDicomContextValue(item),
+      ])
+    );
+  }
+
+  return value;
+}
+
+function normalizeDicomContextForPrompt(dicomContext) {
+  try {
+    return JSON.stringify(
+      normalizeDicomContextValue(JSON.parse(dicomContext)),
+      null,
+      2
+    );
+  } catch {
+    return dicomContext;
+  }
+}
+
+function detectAnswerLevel(prompt) {
+  const text = String(prompt || "").toLowerCase();
+
+  if (
+    /simpul|kesimpulan|ringkas|rangkuman|resume|ikhtisar|impression|summary/i.test(
+      text
+    )
+  ) {
+    return {
+      name: "Menyimpulkan data",
+      instruction:
+        "Buat kesimpulan singkat berdasarkan data yang tersedia. Bedakan fakta dari interpretasi. Jika data hanya metadata Orthanc, simpulkan secara administratif dan jangan membuat diagnosis klinis.",
+    };
+  }
+
+  if (
+    /analisis|analisa|menganalisis|menganalisa|interpretasi|evaluasi|temuan|review|nilai|bandingkan|assessment/i.test(
+      text
+    )
+  ) {
+    return {
+      name: "Menganalisis data",
+      instruction:
+        "Analisis hubungan antar-data yang tersedia, misalnya identitas pasien, modalitas, tanggal studi, deskripsi studi, dan ketersediaan tautan viewer. Jangan menyimpulkan temuan radiologi atau diagnosis jika citra/laporan klinis tidak ada di konteks.",
+    };
+  }
+
+  return {
+    name: "Membacakan data",
+    instruction:
+      "Bacakan data objektif yang tersedia saja. Jangan menambah interpretasi, diagnosis, atau informasi di luar konteks.",
+  };
 }
 
 function extractDicomQuery(prompt) {
@@ -154,6 +239,12 @@ function isViewerRequest(prompt) {
   );
 }
 
+function isTechnicalDetailRequest(prompt) {
+  return /uid|study\s*instance|series\s*instance|sop\s*instance|metadata|tag\s*dicom|detail\s*teknis|identifier/i.test(
+    prompt
+  );
+}
+
 function extractOhifViewerLinksFromContext(dicomContext) {
   try {
     const parsed = JSON.parse(dicomContext);
@@ -222,6 +313,212 @@ function appendViewerLinksIfNeeded(prompt, responseText, dicomContext) {
     "Link OHIF Viewer:",
     ...missingLinks.map(({ viewerUrl }) => `- ${viewerUrl}`),
   ].join("\n");
+}
+
+function normalizeUrlForComparison(url) {
+  return String(url || "").replace(/[).,;!?]+$/g, "");
+}
+
+function removeUnauthorizedUrls(responseText, allowedUrls) {
+  const allowed = new Set(allowedUrls.map(normalizeUrlForComparison));
+
+  return String(responseText || "")
+    .split("\n")
+    .filter((line) => {
+      const urls = line.match(/https?:\/\/[^\s)]+/gi) || [];
+      return urls.every((url) => allowed.has(normalizeUrlForComparison(url)));
+    })
+    .join("\n");
+}
+
+function removeTechnicalUidLines(responseText, prompt) {
+  if (isTechnicalDetailRequest(prompt)) {
+    return responseText;
+  }
+
+  return String(responseText || "")
+    .split("\n")
+    .filter(
+      (line) =>
+        !/\b(?:study|series|sop)?\s*instance\s*uid\b|\buid\b/i.test(line)
+    )
+    .join("\n");
+}
+
+function removeUnavailableTechnicalLines(responseText, prompt) {
+  if (isTechnicalDetailRequest(prompt)) {
+    return responseText;
+  }
+
+  return String(responseText || "")
+    .split("\n")
+    .filter(
+      (line) =>
+        !/(?:study\s*id|studyid|id\s*studi)\s*:?(\s*|-|tidak\s*tersedia|\(tidak\s*tersedia\))?$/i.test(
+          line.trim()
+        )
+    )
+    .join("\n");
+}
+
+function polishIndonesianMedicalTerms(responseText) {
+  return String(responseText || "")
+    .replace(/```+/g, "")
+    .replace(/^Tentu,\s*/i, "")
+    .replace(/^\s*[*-]\s+/gm, "")
+    .replace(/\bStudy ID\b/g, "ID studi")
+    .replace(/\bStudyID\b/g, "ID studi")
+    .replace(/\bStudy\b/g, "Studi")
+    .replace(/\bSeries\b/g, "Seri")
+    .replace(/\bInstance\b/g, "Instance")
+    .replace(/Nama Pasien/g, "Nama pasien")
+    .replace(/ID Pasien/g, "ID pasien")
+    .replace(/Nomor Rekam Medis/g, "Nomor rekam medis")
+    .replace(/Tanggal Studi/g, "Tanggal studi")
+    .replace(/Deskripsi Studi/g, "Deskripsi studi")
+    .replace(/Jumlah seri terkait Studi/g, "Jumlah seri terkait")
+    .replace(/Jumlah instance terkait Studi/g, "Jumlah instance terkait")
+    .replace(/Jumlah Seri Terkait/g, "Jumlah seri terkait")
+    .replace(/Jumlah Instance Terkait/g, "Jumlah instance terkait")
+    .replace(
+      /\b(20\d{2})(\d{2})(\d{2})\b/g,
+      (_, year, month, day) => `${year}-${month}-${day}`
+    );
+}
+
+function removeEmptyLabelLines(responseText) {
+  return String(responseText || "")
+    .split("\n")
+    .filter((line) => !/^\s*(?:id\s*studi|studi\s*id)\s*:\s*$/i.test(line))
+    .join("\n");
+}
+
+function removeRawJsonSections(responseText) {
+  const lines = String(responseText || "").split("\n");
+  const cleanedLines = [];
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const currentLine = lines[index].trim();
+    const nextLine = lines[index + 1]?.trim();
+    const secondNextLine = lines[index + 2]?.trim();
+    let jsonStartIndex = -1;
+
+    if (/^deskripsi\s*:$/i.test(currentLine) && /^json$/i.test(nextLine) && secondNextLine === "{") {
+      jsonStartIndex = index + 2;
+    } else if (/^deskripsi\s*:$/i.test(currentLine) && nextLine === "{") {
+      jsonStartIndex = index + 1;
+    } else if (/^json$/i.test(currentLine) && nextLine === "{") {
+      jsonStartIndex = index + 1;
+    } else if (currentLine === "{") {
+      jsonStartIndex = index;
+    }
+
+    if (jsonStartIndex === -1) {
+      cleanedLines.push(lines[index]);
+      continue;
+    }
+
+    let braceDepth = 0;
+    index = jsonStartIndex;
+
+    for (; index < lines.length; index += 1) {
+      const line = lines[index];
+      braceDepth += (line.match(/{/g) || []).length;
+      braceDepth -= (line.match(/}/g) || []).length;
+
+      if (braceDepth <= 0 && line.includes("}")) {
+        break;
+      }
+    }
+  }
+
+  return cleanedLines.join("\n");
+}
+
+function removeStandaloneJsonMarkers(responseText) {
+  return String(responseText || "")
+    .split("\n")
+    .filter((line) => !/^\s*json\s*$/i.test(line))
+    .join("\n");
+}
+
+function removeEmptySectionHeadings(responseText) {
+  const lines = String(responseText || "").split("\n");
+
+  return lines
+    .filter((line, index) => {
+      if (!/^\s*(?:analisis|kesimpulan|batasan)\s*:\s*$/i.test(line)) {
+        return true;
+      }
+
+      const nextMeaningfulLine = lines
+        .slice(index + 1)
+        .find((item) => item.trim());
+
+      return Boolean(nextMeaningfulLine) && !/^\s*(?:analisis|kesimpulan|batasan)\s*:/i.test(nextMeaningfulLine);
+    })
+    .join("\n");
+}
+
+function normalizeLabelName(line) {
+  const match = String(line || "").match(/^\s*(?:\*\*)?([^:*]+?)(?:\*\*)?\s*:/);
+  return match?.[1]?.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function removeRepeatedLabelLines(responseText) {
+  const seenLabels = new Set();
+
+  return String(responseText || "")
+    .split("\n")
+    .filter((line) => {
+      const label = normalizeLabelName(line);
+
+      if (!label) {
+        return true;
+      }
+
+      if (seenLabels.has(label)) {
+        return false;
+      }
+
+      seenLabels.add(label);
+      return true;
+    })
+    .join("\n");
+}
+
+function capitalizeFirstLetter(responseText) {
+  return String(responseText || "").replace(/^(\s*)([a-z])/, (_, space, letter) =>
+    `${space}${letter.toUpperCase()}`
+  );
+}
+
+function postProcessAiResponse(responseText, prompt, viewerLinks) {
+  const allowedViewerUrls = viewerLinks.map((link) => link.viewerUrl);
+
+  return capitalizeFirstLetter(
+    removeRepeatedLabelLines(
+      removeEmptySectionHeadings(
+        removeEmptyLabelLines(
+          polishIndonesianMedicalTerms(
+            removeStandaloneJsonMarkers(
+              removeRawJsonSections(
+                removeUnavailableTechnicalLines(
+                  removeTechnicalUidLines(
+                    removeUnauthorizedUrls(responseText, allowedViewerUrls),
+                    prompt
+                  ),
+                  prompt
+                ),
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 async function getDicomContext(prompt) {
@@ -295,25 +592,58 @@ async function getDicomContext(prompt) {
   }
 }
 
-function buildPromptWithDicomContext(prompt, dicomContext) {
+function buildPromptWithDicomContext(
+  prompt,
+  dicomContext,
+  answerLevel = detectAnswerLevel(prompt)
+) {
   if (!dicomContext) {
-    return prompt;
+    return [
+      "Kamu adalah asisten medis untuk sistem PACS VisMed.",
+      "Jawab dalam bahasa Indonesia yang baik, jelas, dan sesuai EYD/PUEBI.",
+      "Jangan mengarang data pasien, hasil pemeriksaan, diagnosis, atau rekomendasi klinis.",
+      "Jika user meminta data PACS/Orthanc tetapi konteks tidak tersedia, minta patient ID atau nama pasien yang spesifik.",
+      "Jika pertanyaan bersifat medis, jelaskan bahwa jawaban AI bersifat pendukung dan bukan pengganti dokter/radiolog.",
+      "",
+      "PERTANYAAN USER:",
+      prompt,
+    ].join("\n");
   }
 
+  const normalizedDicomContext = normalizeDicomContextForPrompt(dicomContext);
+
   return [
-    "Kamu adalah asisten medis untuk sistem PACS.",
-    "Gunakan DATA DICOM/ORTHANC berikut sebagai konteks.",
-    "Jawab dalam bahasa Indonesia yang ringkas dan mudah dibaca.",
-    "Jangan tampilkan JSON mentah, struktur object, array, key-value teknis, atau raw response kepada user.",
-    "Jika perlu menyebut data, ubah menjadi kalimat atau daftar poin sederhana.",
-    "Jika user meminta gambar, image, viewer, atau menampilkan study, berikan tautan OHIF Viewer dari ohifViewerLinks.",
-    "Tulis URL OHIF sebagai URL lengkap biasa, bukan format Markdown.",
-    "Jangan gunakan ohifviewer.herokuapp.com atau parameter ?study=. Gunakan hanya viewerUrl dari ohifViewerLinks.",
-    "Jangan mengarang data pasien, study, series, atau diagnosis yang tidak ada di konteks.",
-    "Jika konteks tidak cukup, jelaskan data apa yang perlu dilengkapi.",
+    "Kamu adalah asisten medis untuk sistem PACS VisMed.",
+    "Gunakan hanya DATA DICOM/ORTHANC berikut sebagai sumber jawaban.",
+    "Jawab dalam bahasa Indonesia yang baik, jelas, ringkas, dan sesuai EYD/PUEBI.",
+    `Tingkat jawaban: ${answerLevel.name}.`,
+    answerLevel.instruction,
+    "",
+    "ATURAN WAJIB:",
+    "1. Jangan mengarang data pasien, study, series, temuan klinis, diagnosis, atau tindakan medis yang tidak ada di konteks.",
+    "2. Jika suatu informasi tidak ada di konteks, tulis bahwa data tersebut tidak tersedia.",
+    "3. Ubah format nama DICOM yang memakai tanda ^ menjadi nama manusiawi, misalnya byan^sujatmiko^kuncoro menjadi Byan Sujatmiko Kuncoro.",
+    "4. Jangan tampilkan JSON mentah, struktur object, array, key-value teknis, atau raw response kepada user.",
+    "5. Jika perlu menyebut data, ubah menjadi kalimat atau daftar poin sederhana.",
+    "6. Gunakan istilah baku: pasien, studi, modalitas, tanggal studi, deskripsi studi, dan nomor rekam medis.",
+    "7. Jika user meminta analisis atau kesimpulan tetapi konteks hanya berisi metadata, nyatakan batasannya dengan sopan.",
+    "8. Jika user meminta gambar, image, viewer, atau menampilkan study, berikan tautan OHIF Viewer dari ohifViewerLinks.",
+    "9. Tulis URL OHIF sebagai URL lengkap biasa, bukan format Markdown.",
+    "10. Jangan gunakan ohifviewer.herokuapp.com atau parameter ?study=. Gunakan hanya viewerUrl dari ohifViewerLinks.",
+    "11. Jangan tampilkan UID teknis, JSON key, atau identifier internal kecuali user secara eksplisit meminta UID, detail teknis, atau tautan viewer.",
+    "12. Jangan membuat bagian 'Deskripsi:' yang berisi JSON atau object. Jika ada deskripsi studi, tulis sebagai kalimat biasa.",
+    "",
+    "FORMAT JAWABAN:",
+    "- Mulai dengan satu kalimat pembuka yang natural.",
+    "- Tulis setiap data penting pada baris baru dengan format 'Label: nilai'.",
+    "- Jangan gunakan tanda bintang, bullet markdown, atau simbol daftar di awal baris.",
+    "- Jika ingin menekankan label, gunakan format tebal sederhana seperti **Nama pasien:**.",
+    "- Untuk tingkat 'Menganalisis data', tambahkan bagian 'Analisis' setelah data objektif.",
+    "- Untuk tingkat 'Menyimpulkan data', tambahkan bagian 'Kesimpulan' dan 'Batasan'.",
+    "- Jangan menyebut 'berdasarkan JSON' atau 'berdasarkan raw response'.",
     "",
     "DATA DICOM/ORTHANC:",
-    dicomContext,
+    normalizedDicomContext,
     "",
     "PERTANYAAN USER:",
     prompt,
@@ -329,27 +659,39 @@ router.get("/chatbot", async function (req, res) {
     }
 
     const dicomContext = await getDicomContext(prompt);
-    const finalPrompt = buildPromptWithDicomContext(prompt, dicomContext);
+    const answerLevel = detectAnswerLevel(prompt);
+    const finalPrompt = buildPromptWithDicomContext(
+      prompt,
+      dicomContext,
+      answerLevel
+    );
 
     const response = await ollamaInstance.post("/generate", {
       model: OLLAMA_MODEL,
       prompt: finalPrompt,
       stream: false,
+      options: {
+        temperature: OLLAMA_TEMPERATURE,
+        top_p: 0.8,
+        repeat_penalty: 1.2,
+        num_predict: 350,
+      },
     });
-    const responseText = appendViewerLinksIfNeeded(
-      prompt,
-      response.data.response || "",
-      dicomContext
-    );
+    const generatedResponseText = response.data.response || "";
     const viewerLinks = isViewerRequest(prompt)
-      ? getViewerLinks(prompt, responseText, dicomContext)
+      ? getViewerLinks(prompt, generatedResponseText, dicomContext)
       : [];
+    const responseText = postProcessAiResponse(
+      appendViewerLinksIfNeeded(prompt, generatedResponseText, dicomContext),
+      prompt,
+      viewerLinks
+    );
 
     res.json({
       response: responseText,
+      answerLevel: answerLevel.name,
       dicomContextUsed: Boolean(dicomContext),
       viewerLinks,
-      raw: response.data,
     });
   } catch (err) {
     const status = err.response?.status || 500;

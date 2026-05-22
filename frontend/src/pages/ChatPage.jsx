@@ -161,12 +161,6 @@ export default function ChatPage() {
                 return updated;
             });
 
-            const viewerUrl = response.data.viewerLinks?.[0]?.viewerUrl;
-
-            if (viewerUrl) {
-                window.location.href = viewerUrl;
-            }
-
         } catch (err) {
             console.error("AI ERROR:", err);
             const aiMsg = {
@@ -192,8 +186,8 @@ export default function ChatPage() {
         }
     };
 
-    const renderMessageText = (text) => {
-        const parts = String(text).split(/(https?:\/\/[^\s]+)/g);
+    const renderInlineText = (text, keyPrefix) => {
+        const parts = String(text).split(/(\*\*[^*]+\*\*|https?:\/\/[^\s]+)/g);
 
         return parts.map((part, index) => {
             if (/^https?:\/\//i.test(part)) {
@@ -202,7 +196,7 @@ export default function ChatPage() {
                 const trailing = match?.[2] || "";
 
                 return (
-                    <span key={index}>
+                    <span key={`${keyPrefix}-url-${index}`}>
                         <a
                             href={href}
                             target="_blank"
@@ -216,8 +210,34 @@ export default function ChatPage() {
                 );
             }
 
+            if (/^\*\*[^*]+\*\*$/.test(part)) {
+                return (
+                    <strong key={`${keyPrefix}-bold-${index}`}>
+                        {part.slice(2, -2)}
+                    </strong>
+                );
+            }
+
             return part;
         });
+    };
+
+    const renderMessageText = (text) => {
+        return String(text)
+            .split("\n")
+            .map((line, index) => {
+                const cleanLine = line.replace(/^\s*[*-]\s+/, "");
+
+                if (!cleanLine.trim()) {
+                    return <br key={`line-${index}`} />;
+                }
+
+                return (
+                    <div key={`line-${index}`}>
+                        {renderInlineText(cleanLine, `line-${index}`)}
+                    </div>
+                );
+            });
     };
 
     // -------------------------------------------------------------------------

@@ -11,6 +11,23 @@ export default function MISViewer() {
   const [patients, setPatients] = useState([]);
   const [currentPatient, setCurrentPatient] = useState(null);
   const [currentVideo, setCurrentVideo] = useState(0);
+
+  const getValue = (...values) => {
+    const value = values.find((item) => item !== undefined && item !== null && item !== "");
+    return value === undefined ? "" : String(value);
+  };
+
+  const formatDateForDicom = (value) => getValue(value).replaceAll("-", "");
+
+  const formatTimeForDicom = (value) => {
+    const cleanTime = getValue(value).replaceAll(":", "").replaceAll(".", "");
+
+    if (!cleanTime) {
+      return "";
+    }
+
+    return cleanTime.padEnd(6, "0").slice(0, 6);
+  };
   
   useEffect(() => {
   axios.get("http://localhost:3000/pacs/get-mwl")
@@ -18,16 +35,20 @@ export default function MISViewer() {
 
       console.log("MWL:", res.data);
 
-      const mapped = res.data.map((p, i) => ({
-        id: p.id + "_" + i,
-        rawId: p.id,
-        name: p.name,
-        modality: p.modality,
-        bodypart: p.bodypart,
-        date: p.date,
-        time: p.time,
-        videos: []
-      }));
+      const mapped = res.data.map((p, i) => {
+        const rawId = getValue(p.id, p.patientID, p.PatientID, i);
+
+        return {
+          id: `${rawId}_${i}`,
+          rawId,
+          name: getValue(p.name, p.PatientName),
+          modality: getValue(p.modality, p.Modality),
+          bodypart: getValue(p.bodypart, p.BodyPartExamined),
+          date: getValue(p.date, p.StudyDate, p.ScheduledProcedureStepStartDate),
+          time: getValue(p.time, p.StudyTime, p.ScheduledProcedureStepStartTime),
+          videos: []
+        };
+      });
 
       setPatients(mapped);
 
@@ -99,17 +120,44 @@ export default function MISViewer() {
     formData.append("bodypart", currentPatient.bodypart);
     formData.append(
       "date",
-      currentPatient.date.replaceAll("-", "")
+      formatDateForDicom(currentPatient.date)
     );
     formData.append(
       "time",
-      currentPatient.time.replace(":", "") + "00"
+      formatTimeForDicom(currentPatient.time)
     );
+  };
+
+  const getMissingMetadata = () => {
+    const metadata = {
+      patientID: currentPatient?.rawId,
+      name: currentPatient?.name,
+      modality: currentPatient?.modality,
+      bodypart: currentPatient?.bodypart,
+      date: formatDateForDicom(currentPatient?.date),
+      time: formatTimeForDicom(currentPatient?.time),
+    };
+
+    return Object.entries(metadata)
+      .filter(([, value]) => !getValue(value))
+      .map(([key]) => key);
   };
 
   const handleSave = async () => {
   if (!currentPatient) {
     alert("pilih pasien terlebih dahulu");
+    return;
+  }
+
+  if (!currentPatient.videos.length) {
+    alert("Upload video terlebih dahulu");
+    return;
+  }
+
+  const missingMetadata = getMissingMetadata();
+
+  if (missingMetadata.length) {
+    alert(`Metadata pasien belum lengkap: ${missingMetadata.join(", ")}`);
     return;
   }
 

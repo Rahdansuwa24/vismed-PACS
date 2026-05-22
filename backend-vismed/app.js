@@ -11,6 +11,7 @@ var logger = require('morgan');
 var mwlRouter = require('./routes/mwl');
 var pacsRouter = require('./routes/pacs-post');
 var aiRouter = require('./routes/ai');
+var simulateRouter = require('./routes/simulate');
 
 
 var app = express();
@@ -30,6 +31,7 @@ app.use(cookieParser());
 app.use('/mwl', mwlRouter);
 app.use('/pacs', pacsRouter);
 app.use('/ai', aiRouter);
+app.use('/simulate', simulateRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

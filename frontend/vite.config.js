@@ -8,7 +8,8 @@ export default defineConfig({
     proxy: {
       '/pacs': 'http://localhost:4000',
       '/mwl': 'http://localhost:4000',
-      '/ai': 'http://localhost:3000'
+      '/ai': 'http://localhost:3000',
+      '/simulate': 'http://localhost:3000'
     }
   }
 })

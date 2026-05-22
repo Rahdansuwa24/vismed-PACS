@@ -9,6 +9,7 @@ import {
   Brain,
   Activity,
   ArrowRight,
+  ClipboardPlus,
   Sparkles,
 } from "lucide-react";
 
@@ -50,6 +51,14 @@ const Dashboard = () => {
       desc: "Manage and schedule medical imaging procedures with comprehensive worklist management",
       info: "125 Active Studies",
       path: "/modality",
+    },
+    {
+      icon: <ClipboardPlus className="vismedX_svg" size={28} />,
+      title: "Simulasi MWL",
+      tag: "DICOM .wl",
+      desc: "Send patient metadata to create modality worklist simulation files",
+      info: "Manual Metadata Input",
+      path: "/worklist-simulator",
     },
     {
       icon: <Video className="vismedX_svg" size={28} />,

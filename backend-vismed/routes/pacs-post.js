@@ -6,7 +6,28 @@ const FormData = require("form-data");
 const fs = require("fs");
 const upload = multer({ dest: "tmp/" });
 const PACS_URL = process.env.PACS_URL;
-const endpoint = process.env.endpoint
+const endpoint = process.env.ENDPOINT || process.env.endpoint;
+
+function getBodyValue(body, key) {
+  const value = body?.[key];
+
+  if (value === undefined || value === null || value === "null" || value === "undefined") {
+    return "";
+  }
+
+  return String(value).trim();
+}
+
+function getUploadMetadata(body) {
+  return {
+    patientID: getBodyValue(body, "patientID"),
+    name: getBodyValue(body, "name"),
+    modality: getBodyValue(body, "modality"),
+    bodypart: getBodyValue(body, "bodypart"),
+    date: getBodyValue(body, "date"),
+    time: getBodyValue(body, "time"),
+  };
+}
 
 router.get("/studies", async function (req, res) {
   try {
@@ -45,15 +66,31 @@ router.post("/upload-videos", upload.single("video"), async (req, res) => {
     console.log("WINDOWS FILE:", req.file);
     console.log("WINDOWS BODY:", req.body);
 
+    if (!endpoint) {
+      return res.status(500).json({ error: "ENDPOINT belum dikonfigurasi" });
+    }
+
+    const metadata = getUploadMetadata(req.body);
+    const missingFields = Object.entries(metadata)
+      .filter(([, value]) => !value)
+      .map(([key]) => key);
+
+    if (missingFields.length) {
+      return res.status(400).json({
+        error: `Metadata upload tidak lengkap: ${missingFields.join(", ")}`,
+        metadata,
+      });
+    }
+
     const form = new FormData();
 
     form.append("video", fs.createReadStream(req.file.path));
-    form.append("patientID", req.body.patientID);
-    form.append("name", req.body.name);
-    form.append("modality", req.body.modality);
-    form.append("bodypart", req.body.bodypart);
-    form.append("date", req.body.date);
-    form.append("time", req.body.time);
+    form.append("patientID", metadata.patientID);
+    form.append("name", metadata.name);
+    form.append("modality", metadata.modality);
+    form.append("bodypart", metadata.bodypart);
+    form.append("date", metadata.date);
+    form.append("time", metadata.time);
 
     const response = await axios.post(
      `${endpoint}/upload-video` ,
