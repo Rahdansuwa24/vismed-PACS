@@ -4,6 +4,8 @@ import ChatPage from "./pages/ChatPage";
 import Dashboard from "./pages/Dashboard";
 import Modality from "./pages/Modality";
 import SimulatePage from "./pages/SimulatePage";
+import DicomWorklistPage from './pages/DicomWorklistPage'
+import DicomViewerPage from './pages/DicomViewerPage'
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/modality" element={<Modality />} />
         <Route path="/worklist-simulator" element={<SimulatePage />} />
+        <Route path="/dicom-wl" element={<DicomWorklistPage />} />
+        <Route path="/dicom-viewer" element={<DicomViewerPage />} />
       </Routes>
     </BrowserRouter>
   );

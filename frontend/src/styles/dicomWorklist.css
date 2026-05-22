@@ -1,0 +1,177 @@
+
+.dw-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #03141a;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.dw-container {
+  display: flex;
+  gap: 20px;
+  padding: 24px;
+}
+
+.dw-left-panel {
+  flex: 1;
+  background: #061a20;
+  border: 1px solid #16303a;
+  border-radius: 18px;
+  padding: 24px;
+}
+
+.dw-right-panel {
+  width: 380px;
+  background: #061a20;
+  border: 1px solid #16303a;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.dw-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.dw-header h1 {
+  font-size: 36px;
+}
+
+.dw-filter-group {
+  display: flex;
+  gap: 12px;
+}
+
+.dw-select {
+  background: #0b2730;
+  border: 1px solid #20414b;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+
+.dw-study-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.dw-study-card {
+  display: flex;
+  gap: 18px;
+  background: #071d24;
+  border: 1px solid #16303a;
+  border-radius: 16px;
+  padding: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.dw-study-card:hover {
+  border-color: #29d3ff;
+}
+
+.dw-active-card {
+  border-color: #29d3ff;
+  background: #0c2831;
+}
+
+.dw-study-image img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.dw-study-info {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dw-study-info h3 {
+  font-size: 22px;
+}
+
+.dw-study-info h4 {
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: normal;
+}
+
+.dw-study-info span {
+  font-size: 12px;
+  color: #7aa4b2;
+}
+
+.dw-meta-section {
+  text-align: right;
+}
+
+.dw-images-count {
+  margin-top: 12px;
+}
+
+.dw-status {
+  margin-top: 12px;
+  background: #00ffae20;
+  color: #00ffae;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.dw-preview-header {
+  padding: 24px;
+  border-bottom: 1px solid #16303a;
+}
+
+.dw-preview-header h2 {
+  font-size: 30px;
+}
+
+.dw-preview-image-container {
+  height: 500px;
+  background: black;
+}
+
+.dw-preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dw-preview-info {
+  padding: 24px;
+}
+
+.dw-preview-row {
+  margin-bottom: 18px;
+}
+
+.dw-preview-row span {
+  color: #8db2be;
+  font-size: 13px;
+}
+
+.dw-preview-row p {
+  margin-top: 6px;
+  font-size: 18px;
+}
+
+.dw-launch-button {
+  width: calc(100% - 48px);
+  margin: 0 24px 24px;
+  height: 60px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #00d9ff, #34ffd6);
+  color: #03202a;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+}
