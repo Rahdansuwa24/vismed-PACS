@@ -1,0 +1,22 @@
+# PRD and Markdown files
+PRD-01_Windows_Frontend.md
+PRD-02_VM_Backend.md
+listing_model.md
+peningkatan_keandalan_vision.md
+
+# Logs
+logs
+*.log
+
+# Dependency directories
+node_modules/
+
+# Environments
+.env
+.env.local
+.env.*.local
+
+# Editor settings
+.vscode/
+.idea/
+.DS_Store

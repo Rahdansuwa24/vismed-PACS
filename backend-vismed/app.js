@@ -22,8 +22,11 @@ app.use(cors());
 // app.set('view engine', 'jade');
 
 app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: process.env.REQUEST_BODY_LIMIT || '50mb' }));
+app.use(express.urlencoded({
+  extended: false,
+  limit: process.env.REQUEST_BODY_LIMIT || '50mb'
+}));
 app.use(cookieParser());
 // app.use(express.static(path.join(__dirname, 'public')));
 

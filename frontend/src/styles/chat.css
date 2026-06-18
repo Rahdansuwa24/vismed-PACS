@@ -1,5 +1,5 @@
 /* ================= ROOT ================= */
-.chatx-root { 
+.chatx-root {
   height: 100vh;
   background: radial-gradient(circle at center, #111827, #020617);
   color: #E5E7EB;
@@ -109,7 +109,6 @@
   flex-direction: column;
   overflow: hidden;
   padding-top: 40px;
-  
 }
 
 
@@ -185,9 +184,7 @@
   gap: 12px;
 }
 
-.chatx-chat-area::-webkit-scrollbar {
-  width: 6px;
-}
+.chatx-chat-area::-webkit-scrollbar { width: 6px; }
 .chatx-chat-area::-webkit-scrollbar-thumb {
   background: rgba(255,255,255,0.2);
   border-radius: 10px;
@@ -203,7 +200,7 @@
 }
 
 .chatx-user { justify-content: flex-end; }
-.chatx-ai { justify-content: flex-start; }
+.chatx-ai   { justify-content: flex-start; }
 
 .chatx-avatar {
   width: 32px;
@@ -227,9 +224,7 @@
   word-wrap: break-word;
 }
 
-.chatx-message-text {
-  white-space: pre-wrap;
-}
+.chatx-message-text { white-space: pre-wrap; }
 
 .chatx-link {
   color: #4dd4ff;
@@ -241,6 +236,8 @@
   background: linear-gradient(135deg, #00c2a8, #009689);
   color: white;
 }
+
+.chatx-bubble > div:first-child { margin-bottom: 6px; }
 
 
 /* ================= INPUT ================= */
@@ -269,12 +266,22 @@
   overflow-y: auto;
   line-height: 1.5;
   outline: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,194,168,0.4) transparent;
 }
 
 .chatx-input:focus {
   border-color: #00c2a8;
   box-shadow: 0 0 0 2px rgba(0,194,168,0.2);
 }
+
+.chatx-input::-webkit-scrollbar { width: 6px; }
+.chatx-input::-webkit-scrollbar-track { background: transparent; }
+.chatx-input::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 10px;
+}
+.chatx-input:hover::-webkit-scrollbar-thumb { background: rgba(0,194,168,0.5); }
 
 
 /* ================= BUTTON ================= */
@@ -301,14 +308,13 @@
   color: white;
 }
 
-.chatx-send-btn:hover {
-  box-shadow: 0 6px 18px rgba(0,194,168,0.4);
-}
+.chatx-send-btn:hover,
 .chatx-upload-btn:hover {
   box-shadow: 0 6px 18px rgba(0,194,168,0.4);
 }
 
-/* ================= FILE ================= */
+
+/* ================= FILE BAR ================= */
 .chatx-filebar {
   margin: 10px 20px;
   padding: 10px;
@@ -325,9 +331,7 @@
   border-radius: 10px;
 }
 
-.chatx-file-item:hover {
-  background: rgba(0,194,168,0.08);
-}
+.chatx-file-item:hover { background: rgba(0,194,168,0.08); }
 
 .chatx-file-img {
   width: 45px;
@@ -346,18 +350,9 @@
   justify-content: center;
 }
 
-.chatx-file-info {
-  flex: 1;
-}
-
-.chatx-file-name {
-  font-size: 13px;
-}
-
-.chatx-file-meta {
-  font-size: 11px;
-  color: #9CA3AF;
-}
+.chatx-file-info { flex: 1; }
+.chatx-file-name { font-size: 13px; }
+.chatx-file-meta { font-size: 11px; color: #9CA3AF; }
 
 .chatx-close {
   background: transparent;
@@ -366,16 +361,60 @@
   opacity: 0.6;
   color: white;
 }
+.chatx-close:hover { opacity: 1; }
 
-.chatx-close:hover {
-  opacity: 1;
+
+/* ================= BUBBLE FILES ================= */
+.chatx-bubble-files {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.chatx-bubble-file {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: 0.2s;
+}
+
+.chatx-bubble-file:hover {
+  border-color: #00c2a8;
+  transform: translateY(-2px);
+}
+
+.chatx-bubble-img {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  display: block;
+}
+
+.chatx-bubble-file-doc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  font-size: 12px;
+  color: #1F2937;
+}
+
+.chatx-bubble-file-doc span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chatx-user .chatx-bubble-file {
+  background: rgba(255,255,255,0.15);
+  border: none;
 }
 
 
 /* ================= DROPDOWN ================= */
-.chatx-upload-wrapper {
-  position: relative;
-}
+.chatx-upload-wrapper { position: relative; }
 
 .chatx-upload-dropdown {
   position: absolute;
@@ -405,9 +444,7 @@
   cursor: pointer;
 }
 
-.chatx-upload-item:hover {
-  background: rgba(0,194,168,0.15);
-}
+.chatx-upload-item:hover { background: rgba(0,194,168,0.15); }
 
 .chatx-upload-text {
   background: none;
@@ -439,38 +476,31 @@
 
 /* ================= ANIMATION ================= */
 @keyframes bounce {
-  0%, 80%, 100% {
-    transform: scale(0);
-    opacity: 0.3;
-  }
-  40% {
-    transform: scale(1);
-    opacity: 1;
-  }
+  0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+  40%           { transform: scale(1); opacity: 1; }
 }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
+
+/* ================= BACK BUTTON ================= */
 .chatx-back {
   display: flex;
   align-items: center;
   justify-content: center;
-
   width: 36px;
   height: 36px;
   margin-right: 10px;
-
   border-radius: 10px;
   cursor: pointer;
-
   background: rgba(255,255,255,0.05);
   transition: 0.2s;
 }
@@ -481,88 +511,7 @@
 }
 
 
-.chatx-bubble-files {
-  margin-top: 10px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 10px;
-}
-.chatx-bubble-file {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
-  overflow: hidden;
-  transition: 0.2s;
-}
-
-.chatx-bubble-file:hover {
-  border-color: #00c2a8;
-  transform: translateY(-2px);
-}
-.chatx-bubble-img {
-  width: 100%;
-  height: 90px;
-  object-fit: cover;
-  display: block;
-}
-.chatx-bubble-file-doc {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px;
-  font-size: 12px;
-  color: #1F2937;
-}
-
-.chatx-bubble-file-doc span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.chatx-user .chatx-bubble-file {
-  background: rgba(255,255,255,0.15);
-  border: none;
-}
-.chatx-bubble > div:first-child {
-  margin-bottom: 6px;
-}
-
-
-/* ================= INPUT SCROLL CUSTOM ================= */
-.chatx-input::-webkit-scrollbar {
-  width: 6px;
-}
-
-.chatx-input::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.chatx-input::-webkit-scrollbar-thumb {
-  background: rgba(0,194,168,0.4);
-  border-radius: 10px;
-  transition: 0.2s;
-}
-
-.chatx-input::-webkit-scrollbar-thumb:hover {
-  background: rgba(0,194,168,0.8);
-}
-
-/* Firefox */
-.chatx-input {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0,194,168,0.4) transparent;
-}
-
-.chatx-input::-webkit-scrollbar-thumb {
-  background: transparent;
-}
-
-.chatx-input:hover::-webkit-scrollbar-thumb {
-  background: rgba(0,194,168,0.5);
-}
-
-
-
+/* ================= SIDEBAR CONTROLS ================= */
 .chatx-history-content {
   display: flex;
   justify-content: space-between;
@@ -577,20 +526,17 @@
   display: flex;
   align-items: center;
   padding: 2px;
+  opacity: 0;
+  transition: 0.2s;
 }
 
 .chatx-delete-btn:hover {
   color: #ff4d4f;
   transform: scale(1.1);
 }
-.chatx-history-item:hover .chatx-delete-btn {
-  opacity: 1;
-}
 
-.chatx-delete-btn {
-  opacity: 0;
-  transition: 0.2s;
-}
+.chatx-history-item:hover .chatx-delete-btn { opacity: 1; }
+
 .chatx-clear-btn {
   width: 100%;
   margin-top: 6px;
@@ -607,4 +553,150 @@
 .chatx-clear-btn:hover {
   color: #ff4d4f;
   border-color: #ff4d4f;
+}
+
+
+/* ================= STUDY CANDIDATES (disambiguation) ================= */
+.chatx-candidates {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.chatx-candidate-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 194, 168, 0.08);
+  border: 1px solid rgba(0, 194, 168, 0.3);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: #D1D5DB;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.chatx-candidate-btn:hover:not(:disabled) {
+  background: rgba(0, 194, 168, 0.18);
+  border-color: #00c2a8;
+  color: #fff;
+  transform: translateX(3px);
+  box-shadow: 0 4px 14px rgba(0, 194, 168, 0.2);
+}
+
+.chatx-candidate-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chatx-candidate-btn span {
+  line-height: 1.5;
+  font-size: 13px;
+}
+
+.chatx-candidate-btn strong {
+  display: block;
+  color: #00e0c7;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+
+/* ================= DOMAIN SELECTOR ================= */
+.chatx-domain-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.chatx-domain-label {
+  font-size: 12px;
+  color: #9CA3AF;
+  white-space: nowrap;
+}
+
+.chatx-domain-select {
+  flex: 1;
+  background: #020617;
+  border: 1px solid rgba(0, 194, 168, 0.3);
+  border-radius: 8px;
+  color: #E5E7EB;
+  font-size: 13px;
+  padding: 6px 10px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.chatx-domain-select:focus {
+  border-color: #00c2a8;
+  box-shadow: 0 0 0 2px rgba(0,194,168,0.15);
+}
+
+.chatx-domain-select option { background: #111827; }
+
+/* ================= SUGGESTIONS ================= */
+.chatx-suggestions {
+  display: flex;
+  gap: 10px;
+  padding: 8px 20px;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  background: rgba(17, 24, 39, 0.9);
+  border-top: 1px solid rgba(255,255,255,0.02);
+}
+
+.chatx-suggestions::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
+.chatx-suggestion-chip {
+  background: rgba(0, 194, 168, 0.08);
+  border: 1px solid rgba(0, 194, 168, 0.3);
+  border-radius: 20px;
+  padding: 6px 14px;
+  color: #D1D5DB;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.chatx-suggestion-chip:hover:not(:disabled) {
+  background: rgba(0, 194, 168, 0.2);
+  border-color: #00c2a8;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 194, 168, 0.15);
+}
+
+.chatx-suggestion-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chatx-showmore-btn {
+  background: transparent;
+  border: 1px dashed rgba(0, 194, 168, 0.4);
+  color: #00e0c7;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 4px;
+  align-self: center;
+  transition: all 0.2s ease;
+}
+
+.chatx-showmore-btn:hover {
+  background: rgba(0, 194, 168, 0.1);
+  border-color: #00c2a8;
+  color: #fff;
 }
