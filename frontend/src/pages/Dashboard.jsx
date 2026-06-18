@@ -11,6 +11,9 @@ import {
   ArrowRight,
   ClipboardPlus,
   Sparkles,
+  MonitorPlay,
+  FolderHeart,
+  ClipboardList,
 } from "lucide-react";
 
 const Dashboard = () => {
@@ -76,6 +79,30 @@ const Dashboard = () => {
       info: "98.7% Accuracy Rate",
       path: "/chat-ai",
     },
+    {
+    icon: <MonitorPlay className="vismedX_svg" size={28} />,
+    title: "Study Worklist",
+    tag: "Radiology Workspace",
+    desc: "View and manage diagnostic imaging studies from multiple DICOM modalities in a centralized PACS workspace",
+    info: "342 Active Examinations",
+    path: "/dicom-worklist",
+  },
+  {
+    icon: <FolderHeart className="vismedX_svg" size={28} />,
+    title: "Patient Examination Results",
+    tag: "Patient Portal",
+    desc: "Read-only patient portal for accessing radiology reports, DICOM images, and examination history securely",
+    info: "Patient Access Viewer",
+    path: "/patient-viewer",
+  },
+  {
+    icon: <ClipboardList className="vismedX_svg" size={28} />,
+    title: "Worklist Manager",
+    tag: "Radiology and Polyclinic",
+    desc: "Manage radiology and polyclinic examination worklists, patient queues, and workflow assignments efficiently",
+    info: "Worklist Management System",
+    path: "/worklist",
+  },
   ];
 
   return (
