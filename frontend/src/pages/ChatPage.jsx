@@ -391,7 +391,7 @@ export default function ChatPage() {
                         if (window.history.length > 1) {
                             navigate(-1);
                         } else {
-                            navigate("/dashboard"); // fallback
+                            navigate("/"); // fallback
                         }
                     }}
                 >

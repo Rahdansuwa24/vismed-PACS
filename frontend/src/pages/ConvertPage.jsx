@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
 import axios from "axios";
-import logo from "../assets/vismed-logo.png";
 import "../styles/mis.css";
+import ConvertFooter from "./convert/components/ConvertFooter";
+import ConvertHeader from "./convert/components/ConvertHeader";
+import ConvertPatientSidebar from "./convert/components/ConvertPatientSidebar";
+import ConvertVideoViewer from "./convert/components/ConvertVideoViewer";
 
 
-export default function MISViewer() {
+export default function ConvertPage() {
   const navigate = useNavigate();
   const [patients, setPatients] = useState([]);
   const [currentPatient, setCurrentPatient] = useState(null);
@@ -89,7 +91,7 @@ export default function MISViewer() {
     );
 
     if (videoFiles.length > 0) {
-      setCurrentVideo(updatedPatient.videos.length - 1); // ✅ gunakan state video
+      setCurrentVideo(updatedPatient.videos.length - 1); 
     }
 
     e.target.value = null; 
@@ -188,150 +190,35 @@ export default function MISViewer() {
     }
 };
 
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
     <div className="misv-root">
-      {/* HEADER */}
-      <header className="misv-header">
-        <div className="misv-logo-area">
-          <div
-            className="misv-back"
-            onClick={() => {
-              if (window.history.length > 1) {
-                navigate(-1);
-              } else {
-                navigate("/dashboard"); // fallback aman
-              }
-            }}
-          >
-            <ArrowLeft size={20} />
-          </div>
-          <img
-            src={logo}
-            className="misv-logo"
-            alt="logo"
-          />
-          <div>
-            <h2 className="misv-title">VisMed Imaging System</h2>
-            <div className="misv-subtitle">
-              Radiology Image Review & Patient Record Assignment
-            </div>
-          </div>
-        </div>
-      </header>
+      <ConvertHeader onBack={handleBack} />
 
-      {/* LAYOUT */}
       <div className="misv-layout">
-        {/* SIDEBAR */}
-        <aside className="misv-sidebar">
-          <label className="misv-section-label">Select Patient</label>
+        <ConvertPatientSidebar
+          patients={patients}
+          currentPatient={currentPatient}
+          handleSelect={handleSelect}
+        />
+        <ConvertVideoViewer currentPatient={currentPatient} currentVideo={currentVideo} />
+      </div>
 
-          <select
-            className="misv-patient-select"
-            onChange={handleSelect}
-            value={currentPatient?.id || ""}
-          >
-            <option value="">Choose patient by ID...</option>
-            {patients.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.id}
-              </option>
-            ))}
-          </select>
-
-          {/* PATIENT CARD */}
-          <div
-            className="misv-patient-card"
-            style={{ display: currentPatient ? "block" : "none" }}
-          >
-            <h6 className="misv-card-title">Incoming Image Details</h6>
-
-            <div className="misv-info-row">
-              <span>Patient Name</span>
-              <strong>{currentPatient?.name}</strong>
-            </div>
-
-            <div className="misv-info-row">
-              <span>Patient ID</span>
-              <strong>{currentPatient?.id}</strong>
-            </div>
-
-            <div className="misv-info-row">
-              <span>Modality</span>
-              <span className="misv-modality">
-                {currentPatient?.modality}
-              </span>
-            </div>
-
-            <div className="misv-info-row">
-              <span>Body Part</span>
-              <strong>{currentPatient?.bodypart}</strong>
-            </div>
-
-            <div className="misv-info-row">
-              <span>Date</span>
-              <strong>{currentPatient?.date}</strong>
-            </div>
-
-            <div className="misv-info-row">
-              <span>Time</span>
-              <strong>{currentPatient?.time}</strong>
-            </div>
-          </div>
-        </aside>
-
-        {/* VIEWER */}
-        <main className="misv-viewer-wrapper">
-          <div className="misv-viewer">
-          {currentPatient?.videos.length > 0 && (
-            <video
-              src={URL.createObjectURL(
-                currentPatient.videos[currentVideo]
-              )}
-              className="misv-image"
-              controls
-              autoPlay
-            />
-          )}
-
-        {/* EMPTY */}
-        {currentPatient &&
-          currentPatient.videos.length === 0 && (
-            <div>No Data</div>
-          )}
-                </div>
-              </main>
-            </div>
-
-      <footer className="misv-footer">
-        <div className="misv-viewer-controls">
-          <button className="misv-nav-btn" onClick={prev}>
-            Previous
-          </button>
-
-          <span className="misv-img-count">
-            Video {currentPatient ? currentVideo + 1 : 0} /{" "}
-            {currentPatient ? currentPatient.videos.length : 0}
-          </span>
-
-          <button className="misv-nav-btn" onClick={next}>
-            Next
-          </button>
-        </div>
-
-        <label className="misv-upload-btn">
-          Upload
-          <input
-            type="file"
-            accept="video/*"
-            onChange={(e) => handleUpload(e)}
-            hidden
-          />
-        </label>
-
-        <button className="misv-save-btn" onClick={handleSave}>
-          Save to Patient Record
-        </button>
-      </footer>
+      <ConvertFooter
+        currentPatient={currentPatient}
+        currentVideo={currentVideo}
+        handleUpload={handleUpload}
+        handleSave={handleSave}
+        next={next}
+        prev={prev}
+      />
     </div>
   );
 }

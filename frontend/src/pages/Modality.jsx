@@ -10,7 +10,7 @@ export default function HistoryPage() {
     const [data, setData] = useState([]);
     const [modality, setModality] = useState("");
 
-    const [selected, setSelected] = useState(null); // 🔥 modal state
+    const [selected, setSelected] = useState(null); 
 
     useEffect(() => {
         axios.get("http://localhost:3000/mwl/get-mwl")
@@ -61,7 +61,7 @@ export default function HistoryPage() {
                     if (window.history.length > 1) {
                         navigate(-1);
                     } else {
-                        navigate("/dashboard");
+                        navigate("/");
                     }
                 }}
             >
@@ -103,7 +103,7 @@ export default function HistoryPage() {
                 <div
                     key={index}
                     className="vhx-item"
-                    onClick={() => setSelected(item)} // 🔥 trigger modal
+                    onClick={() => setSelected(item)} 
                 >
                     <div className="vhx-item-name">{item.name}</div>
                     <div className="vhx-item-meta">
