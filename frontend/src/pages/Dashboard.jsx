@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/dashboard.css";
 
@@ -13,37 +13,37 @@ import DashboardCardGrid from "./dashboard/components/DashboardCardGrid";
 import DashboardFooter from "./dashboard/components/DashboardFooter";
 import DashboardHero from "./dashboard/components/DashboardHero";
 import DashboardNavbar from "./dashboard/components/DashboardNavbar";
-import DashboardStats from "./dashboard/components/DashboardStats";
+// import DashboardStats from "./dashboard/components/DashboardStats";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [stats, setStats] = useState({
-    scan: 0,
-    device: 0,
-    ai: 0,
-  });
+  // const [stats, setStats] = useState({
+  //   scan: 0,
+  //   device: 0,
+  //   ai: 0,
+  // });
 
-  useEffect(() => {
-    let s = 0, d = 0, a = 0;
+  // useEffect(() => {
+  //   let s = 0, d = 0, a = 0;
 
-    const interval = setInterval(() => {
-      s += 30;
-      d += 1;
-      a += 15;
+  //   const interval = setInterval(() => {
+  //     s += 30;
+  //     d += 1;
+  //     a += 15;
 
-      if (s >= 1247) s = 1247;
-      if (d >= 24) d = 24;
-      if (a >= 892) a = 892;
+  //     if (s >= 1247) s = 1247;
+  //     if (d >= 24) d = 24;
+  //     if (a >= 892) a = 892;
 
-      setStats({ scan: s, device: d, ai: a });
+  //     setStats({ scan: s, device: d, ai: a });
 
-      if (s === 1247 && d === 24 && a === 892) {
-        clearInterval(interval);
-      }
-    }, 20);
+  //     if (s === 1247 && d === 24 && a === 892) {
+  //       clearInterval(interval);
+  //     }
+  //   }, 20);
 
-    return () => clearInterval(interval);
-  }, []);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   const cards = [
     // {
@@ -117,7 +117,7 @@ const Dashboard = () => {
       <DashboardNavbar />
       <DashboardHero />
       <DashboardCardGrid cards={cards} navigate={navigate} />
-      <DashboardStats stats={stats} />
+      {/* <DashboardStats stats={stats} /> */}
       <DashboardFooter />
     </div>
   );
