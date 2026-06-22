@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../../styles/worklist.css";
 import logo from "../../../assets/vismed-logo.png";
 
 import {
+  FaArrowLeft,
   FaHome,
   FaClipboardList,
   FaUserMd,
@@ -23,6 +25,7 @@ import {
 } from "react-icons/fa";
 
 const WorklistLayout = ({ title = "Technologist", children }) => {
+  const navigate = useNavigate();
   const [activeMenu, setActiveMenu] = useState("");
   const [rightMenu, setRightMenu] = useState(false);
   const [sidebarPinned, setSidebarPinned] = useState(false);
@@ -32,6 +35,15 @@ const WorklistLayout = ({ title = "Technologist", children }) => {
     <div className="genesysris-page">
       <aside className="genesysris-leftbar">
         <div className="genesysris-brand">
+          <button
+            type="button"
+            className="genesysris-back-btn"
+            aria-label="Back"
+            onClick={() => navigate(-1)}
+          >
+            <FaArrowLeft />
+          </button>
+
           <div className="genesysris-brand-logo">
             <img src={logo} alt="logo" className="genesysris-brand-imglogo" />
           </div>
