@@ -8,6 +8,7 @@ import {
   ClipboardPlus,
   FolderHeart,
   ClipboardList,
+  Activity,
 } from "lucide-react";
 import DashboardCardGrid from "./dashboard/components/DashboardCardGrid";
 import DashboardFooter from "./dashboard/components/DashboardFooter";
@@ -109,14 +110,6 @@ const Dashboard = () => {
     desc: "Manage polyclinic patient queues, clinic visits, doctors, and examination status efficiently",
     info: "Polyclinic Worklist",
     path: "/worklist-polyclinic",
-  },
-  {
-    icon: <Activity className="vismedX_svg" size={28} />,
-    title: "ECG Forwarder Monitor",
-    tag: "ECG Integration",
-    desc: "Monitor FTP file receipt, conversion progress, and transmission to Orthanc PACS & SIMRS",
-    info: "Real-time Gateway",
-    path: "/ecg-forwarder",
   },
   {
     icon: <Activity className="vismedX_svg" size={28} />,

@@ -9,6 +9,8 @@ import DicomViewerPage from './pages/DicomViewerPage'
 import PatientViewerPage from './pages/patientViewer'
 import WorklistPage from './pages/worklistPage'
 import EcgForwarder from "./pages/EcgForwarder";
+import RadiologyWorklistPage from './pages/worklist/RadiologyWorklistPage'
+import PolyclinicWorklistPage from './pages/worklist/PolyclinicWorklistPage'
 
 function App() {
   return (
@@ -17,6 +19,7 @@ function App() {
         <Route path="/post-pacs" element={<ConvertPage />} />
         <Route path="/chat-ai" element={<ChatPage />} />
         <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/modality" element={<Modality />} />
         <Route path="/worklist-simulator" element={<SimulatePage />} />
         <Route path="/dicom-worklist" element={<DicomWorklistPage />} />
@@ -24,6 +27,9 @@ function App() {
         <Route path="/patient-viewer" element={<PatientViewerPage />} />
         <Route path="/worklist" element={<WorklistPage />} />
         <Route path="/ecg-forwarder" element={<EcgForwarder />} />
+        <Route path="/worklist" element={<RadiologyWorklistPage />} />
+        <Route path="/worklist-radiology" element={<RadiologyWorklistPage />} />
+        <Route path="/worklist-polyclinic" element={<PolyclinicWorklistPage />} />
       </Routes>
     </BrowserRouter>
   );
