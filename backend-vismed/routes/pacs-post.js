@@ -124,4 +124,76 @@ router.post("/upload-videos", upload.single("video"), async (req, res) => {
     }
   }
 });
+const path = require("path");
+
+// ECG Forwarder state
+let lastEcgHeartbeat = null;
+let ecgConfig = {
+  watchDir: "",
+  orthancUrl: ""
+};
+
+const LOG_FILE_PATH = path.join(__dirname, "../tmp/ecg-logs.json");
+
+function readLogs() {
+  try {
+    if (fs.existsSync(LOG_FILE_PATH)) {
+      return JSON.parse(fs.readFileSync(LOG_FILE_PATH, "utf8"));
+    }
+  } catch (err) {
+    console.error("Error reading ECG logs file:", err.message);
+  }
+  return [];
+}
+
+function writeLogs(logs) {
+  try {
+    const trimmed = logs.slice(0, 200); // Keep 200 most recent logs
+    fs.writeFileSync(LOG_FILE_PATH, JSON.stringify(trimmed, null, 2), "utf8");
+  } catch (err) {
+    console.error("Error writing ECG logs file:", err.message);
+  }
+}
+
+// Routes for ECG Forwarder Monitor
+router.post("/ecg-heartbeat", (req, res) => {
+  lastEcgHeartbeat = Date.now();
+  if (req.body.watchDir) ecgConfig.watchDir = req.body.watchDir;
+  if (req.body.orthancUrl) ecgConfig.orthancUrl = req.body.orthancUrl;
+  res.json({ status: "ok" });
+});
+
+router.get("/ecg-status", (req, res) => {
+  const isOnline = lastEcgHeartbeat && (Date.now() - lastEcgHeartbeat < 25000); // 25 seconds tolerance
+  res.json({
+    status: isOnline ? "active" : "offline",
+    lastHeartbeat: lastEcgHeartbeat,
+    config: ecgConfig
+  });
+});
+
+router.post("/ecg-log", (req, res) => {
+  const { timestamp, level, filename, nomor_pelayanan, status, message } = req.body;
+  const newLog = {
+    id: Date.now() + "_" + Math.random().toString(36).substr(2, 9),
+    timestamp: timestamp || new Date().toISOString(),
+    level: level || "INFO",
+    filename: filename || "-",
+    nomor_pelayanan: nomor_pelayanan || "-",
+    status: status || "info", // "success", "error", "warning", "info"
+    message: message || ""
+  };
+  
+  const logs = readLogs();
+  logs.unshift(newLog); // Add to beginning (newest first)
+  writeLogs(logs);
+  
+  res.json({ status: "ok", log: newLog });
+});
+
+router.get("/ecg-logs", (req, res) => {
+  const logs = readLogs();
+  res.json(logs);
+});
+
 module.exports = router;
