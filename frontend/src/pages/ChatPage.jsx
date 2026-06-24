@@ -19,7 +19,7 @@ import "../styles/chat.css";
 import logo from "../assets/vismed-logo.png";
 
 const suggestionTemplates = [
-    { label: "Analisis dengan ID", text: "analisis hasil pemeriksaan dengan orthancStudyId " },
+    //{ label: "Analisis dengan ID", text: "analisis hasil pemeriksaan dengan orthancStudyId " },
     { label: "Analisis dengan Nama", text: "analisis hasil pemeriksaan dengan nama pasien " },
     { label: "Buka OHIF Viewer", text: "tampilkan link viewer untuk pasien " },
     { label: "Cari Rekam Medis", text: "cari rekam medis pasien " }

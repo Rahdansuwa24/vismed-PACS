@@ -8,6 +8,7 @@ import DicomWorklistPage from './pages/DicomWorklistPage'
 import DicomViewerPage from './pages/DicomViewerPage'
 import PatientViewerPage from './pages/patientViewer'
 import WorklistPage from './pages/worklistPage'
+import EcgForwarder from "./pages/EcgForwarder";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/dicom-viewer" element={<DicomViewerPage />} />
         <Route path="/patient-viewer" element={<PatientViewerPage />} />
         <Route path="/worklist" element={<WorklistPage />} />
+        <Route path="/ecg-forwarder" element={<EcgForwarder />} />
       </Routes>
     </BrowserRouter>
   );

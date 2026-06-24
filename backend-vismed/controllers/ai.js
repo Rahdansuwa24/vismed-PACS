@@ -136,9 +136,14 @@ const ORTHANC_URL = normalizeBaseUrl(
 const ORTHANC_USERNAME = process.env.ORTHANC_USERNAME || "orthanc";
 const ORTHANC_PASSWORD = process.env.ORTHANC_PASSWORD || "orthanc";
 const PACS_URL = normalizeBaseUrl(process.env.PACS_URL);
-const OHIF_VIEWER_URL = normalizeBaseUrl(
-  process.env.OHIF_VIEWER_URL || (PACS_URL ? `${PACS_URL}/ohif/viewer` : "")
-);
+const OHIF_VIEWER_URL = (() => {
+  const raw = process.env.OHIF_VIEWER_URL || (PACS_URL ? `${PACS_URL}/ohif/viewer` : "");
+  const normalized = normalizeBaseUrl(raw);
+  if (raw.endsWith("/") && !normalized.endsWith("/")) {
+    return normalized + "/";
+  }
+  return normalized;
+})();
 
 const ollamaInstance = axios.create({
   baseURL: OLLAMA_HOST,
@@ -257,9 +262,13 @@ function detectAnswerLevel(prompt) {
 }
 
 function cleanDicomQueryToken(value) {
-  return String(value || "")
+  const cleaned = String(value || "")
     .trim()
     .replace(/^[("'\[]+|[).,;:!?"'\]]+$/g, "");
+  if (/^(pasien|patient|dengan|yang)$/i.test(cleaned)) {
+    return "";
+  }
+  return cleaned;
 }
 
 function normalizeDicomDateQuery(value) {
@@ -270,7 +279,7 @@ function normalizeDicomDateQuery(value) {
 
 function extractDicomQuery(prompt) {
   const patientIdMatch = prompt.match(
-    /(?:patient\s*id|id\s*pasien|patientid|rekam\s*medis|no\.?\s*rm|nomor\s*rm|medical\s*record(?:\s*number)?|\bid\b)\s*[:=]?\s*([A-Za-z0-9_.-]+)/i
+    /(?:patient\s*id|id\s*pasien|patientid|rekam\s*medis|no\.?\s*rm|nomor\s*rm|medical\s*record(?:\s*number)?|\bid\b)\s*(?:pasien|patient)?\s*[:=]?\s*([A-Za-z0-9_.-]+)/i
   );
   const patientNameMatch = prompt.match(
     /(?:nama\s*pasien|patient\s*name|name)\s*[:=]?\s*([A-Za-z0-9 ._^'-]+?)(?=\s+(?:dan|dengan|rekam\s*medis|no\.?\s*rm|nomor\s*rm|patient\s*id|id\s*pasien|medical\s*record)\b|$)/i
@@ -288,11 +297,19 @@ function extractDicomQuery(prompt) {
     /(?:study\s*instance\s*uid|studyinstanceuid)\s*[:=]?\s*(1(?:\.\d+){5,})/i
   );
 
+  let patientId = cleanDicomQueryToken(patientIdMatch?.[1]);
+  let patientName = cleanDicomQueryToken(
+    patientNameMatch?.[1] || patientNameFallbackMatch?.[1]
+  );
+
+  // If name and id are the same token, it's actually an ID, so clear the name to avoid Orthanc AND-matching failures.
+  if (patientId && patientName && patientId.toLowerCase() === patientName.toLowerCase()) {
+    patientName = "";
+  }
+
   return {
-    patientId: cleanDicomQueryToken(patientIdMatch?.[1]),
-    patientName: cleanDicomQueryToken(
-      patientNameMatch?.[1] || patientNameFallbackMatch?.[1]
-    ),
+    patientId,
+    patientName,
     studyDate: normalizeDicomDateQuery(studyDateMatch?.[1]),
     orthancStudyId: cleanDicomQueryToken(orthancStudyIdMatch?.[1]),
     studyInstanceUid: cleanDicomQueryToken(studyInstanceUidMatch?.[1]),
@@ -383,6 +400,25 @@ async function findOrthancStudies(query) {
 
     if (studiesById.size) {
       break;
+    }
+  }
+
+  // Fallback: If no studies found by patientName, and patientId wasn't explicitly searched,
+  // try treating the patientName query as a patientId.
+  if (!studiesById.size && query.patientName && !query.patientId) {
+    try {
+      const response = await orthancInstance.post(
+        "/tools/find",
+        buildOrthancFindBody({ ...query, patientId: query.patientName, patientName: undefined })
+      );
+      const studies = Array.isArray(response.data) ? response.data : [];
+      studies.forEach((study) => {
+        if (study.ID) {
+          studiesById.set(study.ID, study);
+        }
+      });
+    } catch (err) {
+      console.error("Fallback PatientID search failed:", err.message);
     }
   }
 
@@ -1766,6 +1802,312 @@ function buildPromptWithDicomContext(
   ].join("\n");
 }
 
+function formatDicomContextToReadableString(dicomContext) {
+  try {
+    const parsed = typeof dicomContext === "string" ? JSON.parse(dicomContext) : dicomContext;
+    if (!parsed || !parsed.studiesFound) {
+      return "Data pemeriksaan tidak tersedia di PACS.";
+    }
+
+    const lines = [];
+    const study = parsed.studies?.[0];
+    if (study) {
+      const meta = study.extracted?.studyMetadata || study.orthanc?.studyTags || {};
+      const pat = study.orthanc?.patientTags || {};
+
+      lines.push("=== RINGKASAN DATA MEDIS ===");
+      lines.push(`Nama Pasien: ${normalizeDicomPersonName(meta.PatientName || pat.PatientName)}`);
+      lines.push(`ID Pasien: ${meta.PatientID || pat.PatientID || "-"}`);
+      lines.push(`Jenis Kelamin: ${meta.PatientSex || pat.PatientSex || "-"}`);
+      lines.push(`Tanggal Studi: ${meta.StudyDate ? formatDicomDate(meta.StudyDate) : (pat.StudyDate ? formatDicomDate(pat.StudyDate) : "-")}`);
+      lines.push(`Deskripsi Studi: ${meta.StudyDescription || pat.StudyDescription || "-"}`);
+      lines.push(`Modalitas: ${meta.Modality || pat.Modality || "-"}`);
+      lines.push(`Bagian Tubuh: ${meta.BodyPartExamined || meta.BodyPart || "-"}`);
+      lines.push(`Jumlah Gambar/Instance: ${study.extracted?.totalInstances || study.orthanc?.seriesCount || 0}`);
+      
+      const onnx = study.extracted?.onnxResult || parsed.onnxResult;
+      if (onnx) {
+        lines.push("\n=== CATATAN AI VISION (ONNX) ===");
+        if (onnx.status === "model_not_configured") {
+          lines.push(`Status: Tidak Aktif (Pemeriksaan dialihkan langsung ke analisis visual MedGemma)`);
+          if (onnx.warning) lines.push(`Detail: ${onnx.warning}`);
+        } else if (onnx.status === "ok" && Array.isArray(onnx.analyzedFiles)) {
+          onnx.analyzedFiles.forEach((file) => {
+            if (file.findings && file.findings.length > 0) {
+              file.findings.forEach(f => {
+                lines.push(`- Indikasi: ${f.label} (Kualitatif: ${confidenceToQualitative(f.confidence, f.label)})`);
+              });
+            }
+          });
+        } else if (onnx.status === "domain_mismatch") {
+          lines.push(`Status: Domain Mismatch`);
+          if (onnx.warning) lines.push(`Peringatan: ${onnx.warning}`);
+        } else {
+          lines.push(`Status: Tidak tersedia / normal.`);
+        }
+      }
+    }
+    return lines.join("\n");
+  } catch (e) {
+    return typeof dicomContext === "string" ? dicomContext : JSON.stringify(dicomContext);
+  }
+}
+
+async function fetchStudyImages(orthancStudyId) {
+  try {
+    const response = await dicomExtractorInstance.post("/study-context", {
+      orthancStudyId,
+      maxImages: 1, // We only need 1 representative image to avoid context bloat
+      includeImages: true,
+      aiCompactImages: true, // Uses lower dimensions/JPEG quality to save memory
+    });
+    const images = [];
+    if (response.data && Array.isArray(response.data.instances)) {
+      for (const instance of response.data.instances) {
+        if (instance.imagePngBase64) {
+          images.push(instance.imagePngBase64);
+        } else if (Array.isArray(instance.videoFramePngBase64) && instance.videoFramePngBase64.length > 0) {
+          images.push(instance.videoFramePngBase64[0]);
+        }
+        if (images.length >= 1) break;
+      }
+    }
+    return images;
+  } catch (err) {
+    console.error("Failed to fetch study images for chatbot:", err.message);
+    return [];
+  }
+}
+
+function buildChatbotMessages(
+  prompt,
+  dicomContext,
+  conversationHistory = [],
+  chatbotImages = [],
+  answerLevel
+) {
+  const ansLvl = answerLevel || detectAnswerLevel(prompt);
+  
+  let systemPrompt = "";
+  let userPrompt = "";
+
+  if (!dicomContext) {
+    systemPrompt = [
+      "Kamu adalah asisten medis untuk sistem PACS VisMed.",
+      "Jawab dalam bahasa Indonesia yang baik, jelas, dan sesuai EYD/PUEBI.",
+      "Jangan mengarang data pasien, hasil pemeriksaan, diagnosis, atau rekomendasi klinis.",
+      "Jika user meminta data PACS/Orthanc tetapi konteks tidak tersedia, minta patient ID atau nama pasien yang spesifik.",
+      "Jika pertanyaan bersifat medis, jelaskan bahwa jawaban AI bersifat pendukung dan bukan pengganti dokter/radiolog."
+    ].join("\n");
+
+    userPrompt = [
+      "PERTANYAAN USER:",
+      prompt
+    ].join("\n");
+  } else {
+    const readableDicomContext = formatDicomContextToReadableString(dicomContext);
+
+    systemPrompt = [
+      "Kamu adalah asisten medis untuk sistem PACS VisMed.",
+      "Gunakan hanya DATA DICOM/ORTHANC yang diberikan di pesan user sebagai sumber jawaban.",
+      "Jawab dalam bahasa Indonesia yang baik, jelas, informatif, dan sesuai EYD/PUEBI. Berikan penjelasan medis/klinis yang deskriptif dan edukatif, hindari jawaban yang terlalu pendek.",
+      `Tingkat jawaban: ${ansLvl.name}.`,
+      ansLvl.instruction,
+      "",
+      "ATURAN WAJIB:",
+      "1. JANGAN menulis ulang tabel metadata pasien (Nama pasien, Modalitas, Tanggal studi, Deskripsi studi, Nomor rekam medis) di awal jawaban Anda. Bagian ini sudah dibuat secara otomatis oleh sistem. Langsung saja berikan analisis Anda.",
+      "2. Jangan mengarang data pasien, study, series, temuan klinis, diagnosis, atau tindakan medis yang tidak ada di konteks.",
+      "3. Jika suatu informasi tidak ada di konteks, tulis bahwa data tersebut tidak tersedia.",
+      "4. Ubah format nama DICOM yang memakai tanda ^ menjadi nama manusiawi, misalnya byan^sujatmiko^kuncoro menjadi Byan Sujatmiko Kuncoro.",
+      "5. Jangan tampilkan JSON mentah, struktur object, array, key-value teknis, atau raw response kepada user.",
+      "6. Jika perlu menyebut data, ubah menjadi kalimat atau daftar poin sederhana.",
+      "7. Gunakan istilah baku: pasien, studi, modalitas, tanggal studi, deskripsi studi, dan nomor rekam medis.",
+      "8. Jika gambar/frame medis dilampirkan secara visual (sebagai input vision), gunakan kemampuan vision Anda untuk menganalisisnya secara visual bersama dengan data teks yang tersedia. Jika tidak ada gambar medis terlampir dan konteks hanya berisi metadata, nyatakan batasannya dengan sopan.",
+      "8a. Jika konteks berisi hasil ekstraksi DICOM seperti StudyDescription, Modality, BodyPartExamined, ukuran citra, frame/video, atau metadata instance, gunakan data itu untuk membuat kesimpulan administratif/teknis yang relevan tanpa mengarang temuan klinis.",
+      "8b. Jika terdapat hasil temuan AI Vision (ONNX) (baik berupa onnxResult, hasil/temuan dari model AI Vision, atau yang tertulis di bagian analysis.findings), Anda wajib menyajikan hasil temuan AI Vision tersebut kepada user sebagai temuan AI Vision, dan gunakan aturan 14 untuk memformatnya secara ramah klinis.",
+      "9. Jika user meminta gambar, image, viewer, atau menampilkan study, berikan tautan OHIF Viewer dari ohifViewerLinks.",
+      "10. Tulis URL OHIF sebagai URL lengkap biasa, bukan format Markdown.",
+      "11. Jangan gunakan ohifviewer.herokuapp.com atau parameter ?study=. Gunakan hanya viewerUrl dari ohifViewerLinks.",
+      "12. Jangan tampilkan UID teknis, JSON key, atau identifier internal kecuali user secara eksplisit meminta UID, detail teknis, atau tautan viewer.",
+      "13. Jangan membuat bagian 'Deskripsi:' yang berisi JSON atau object. Jika ada deskripsi studi, tulis sebagai kalimat biasa.",
+      "14. DETEKSI MISMATCH MODALITAS (SANGAT PENTING): Hanya sebutkan mismatch modalitas jika terdapat keterangan 'Peringatan Mismatch Model' secara eksplisit di hasil temuan AI Vision (ONNX) yang ditampilkan. Jika tidak ada peringatan mismatch modalitas, jangan sebutkan ketidaksesuaian modalitas. Asumsikan modalitas sudah sesuai.",
+      "15. PENYAJIAN TEMUAN AI VISION — LARANGAN KERAS: DILARANG menyebut angka persentase, skor, atau nilai confidence dalam bentuk apapun (contoh yang DILARANG: '61.1%', '30.6%', 'keyakinan 61%'). Gunakan HANYA deskripsi kualitatif. Petakan temuan menggunakan panduan: (a) Temuan dengan confidence tertinggi → 'indikasi kuat mengarah ke [nama kondisi]' atau 'kemungkinan besar terdapat indikasi [nama kondisi]'. (b) Temuan dengan confidence sedang → 'ada indikasi [nama kondisi], perlu evaluasi lebih lanjut'. (c) Temuan Normal atau confidence rendah → 'tidak ditemukan kelainan signifikan' atau 'kondisi diindikasikan dalam batas normal'. (d) DILARANG menyebut nama file teknis seperti 'ct_chest_0.dcm' — sebut saja sebagai 'citra CT scan' atau 'citra rontgen'. Nyatakan kondisi organ utama secara eksplisit (paru-paru, jantung, otak) dan buat kesimpulan klinis yang jelas. Ingatkan bahwa hasil membutuhkan validasi dokter.",
+      "",
+      "FORMAT JAWABAN:",
+      "- Mulai dengan satu kalimat pembuka yang natural.",
+      "- JANGAN menulis ulang metadata pasien baris-demi-baris dengan format 'Label: nilai' di awal jawaban Anda. Mulailah langsung dengan analisis klinis.",
+      "- Untuk temuan AI Vision, JANGAN ditulis sebagai format 'Label: nilai%' baris demi baris secara kaku. Tulis dalam bentuk paragraf atau penjelasan klinis yang mengalir dan TANPA angka persentase.",
+      "- Jangan menyebut nama file DICOM teknis seperti 'ct_chest_0.dcm'. Gunakan sebutan umum seperti 'citra CT scan dada' atau 'citra rontgen'.",
+      "- Untuk tingkat 'Menganalisis data' or 'Menyimpulkan data', tambahkan bagian '**Kesimpulan**' berupa analisis akhir/ringkasan klinis yang utuh dan bagian '**Batasan**' di akhir jawaban.",
+      "- Jangan menyebut 'berdasarkan JSON' or 'berdasarkan raw response'."
+    ].join("\n");
+
+    userPrompt = [
+      "DATA DICOM/ORTHANC:",
+      readableDicomContext,
+      "",
+      "PERTANYAAN USER:",
+      prompt
+    ].join("\n");
+  }
+
+  const messages = [
+    {
+      role: "system",
+      content: systemPrompt
+    }
+  ];
+
+  messages.push(...conversationHistory);
+
+  messages.push({
+    role: "user",
+    content: userPrompt,
+    images: chatbotImages.length > 0 ? chatbotImages : undefined
+  });
+
+  return messages;
+}
+
+function buildDicomAnalysisCallbackMessages(body) {
+  const prompt = body?.prompt || body?.question || body?.message || "";
+  const context =
+    body?.contextText ||
+    body?.context ||
+    body?.dicomContext ||
+    body?.metadata ||
+    body?.analysisContext ||
+    "";
+  const mediaCount = [
+    ...(Array.isArray(body?.images) ? body.images : []),
+    ...(Array.isArray(body?.frames) ? body.frames : []),
+  ].length;
+
+  const onnxResult = body?.onnxResult || body?.findings;
+  let onnxQualitativeSummary = "";
+  let mismatchWarning = "";
+
+  if (onnxResult && onnxResult.status === "ok" && Array.isArray(onnxResult.analyzedFiles)) {
+    const lines = [];
+    for (const file of onnxResult.analyzedFiles) {
+      if (file.findings && file.findings.length > 0) {
+        const sorted = [...file.findings].sort((a, b) => b.confidence - a.confidence);
+        const significant = sorted.filter(f => f.confidence >= 0.3);
+        const top = significant[0] || sorted[0];
+        const allLowConf = sorted.every(f => f.confidence < 0.65);
+
+        if (allLowConf) {
+          lines.push("Model klasifikasi otomatis tidak memberikan temuan yang meyakinkan — kemungkinan ada ketidaksesuaian antara model dan jenis gambar.");
+          mismatchWarning = "Perhatian: Nilai keyakinan model klasifikasi ONNX rendah untuk semua kelas, mengindikasikan kemungkinan ketidaksesuaian antara domain model dan gambar yang dianalisis.";
+        } else {
+          const desc = confidenceToQualitative(top.confidence, top.label);
+          lines.push(`Model klasifikasi otomatis: ${desc.charAt(0).toUpperCase() + desc.slice(1)}.`);
+          const secondary = significant.slice(1).filter(f => f.confidence >= 0.3);
+          if (secondary.length > 0) {
+            const secDesc = confidenceToQualitative(secondary[0].confidence, secondary[0].label);
+            lines.push(`Temuan sekunder: ${secDesc.charAt(0).toUpperCase() + secDesc.slice(1)}.`);
+          }
+        }
+      }
+    }
+    onnxQualitativeSummary = lines.join(" ") || "Tidak ada temuan signifikan dari model klasifikasi.";
+  } else if (onnxResult && onnxResult.status === "model_not_configured") {
+    onnxQualitativeSummary = "Analisis dialihkan ke MedGemma karena tidak ada model klasifikasi ONNX yang terkonfigurasi untuk pemeriksaan ini.";
+    mismatchWarning = onnxResult.warning || "";
+  } else if (typeof onnxResult === "string") {
+    onnxQualitativeSummary = onnxResult;
+    if (onnxResult.includes("Peringatan Mismatch Model")) {
+      mismatchWarning = onnxResult.split("Peringatan Mismatch Model:").slice(1).join("").trim();
+    }
+  } else {
+    onnxQualitativeSummary = "Hasil klasifikasi otomatis tidak tersedia.";
+  }
+
+  const contextStr = typeof context === "string" ? context : "";
+  if (!mismatchWarning && contextStr.includes("Peringatan Mismatch Model")) {
+    mismatchWarning = contextStr.split("Peringatan Mismatch Model:").slice(1).join("").trim().slice(0, 300);
+  }
+
+  const systemLines = [
+    "Kamu adalah AI medis multimodal. Tugasmu adalah menganalisis citra medis DICOM yang dilampirkan secara visual.",
+    "Jawab dalam Bahasa Indonesia yang klinis, mendalam, dan informatif.",
+    "",
+  ];
+
+  if (mediaCount > 0) {
+    systemLines.push(
+      `INSTRUKSI UTAMA: ${mediaCount} gambar/frame DICOM telah dilampirkan sebagai input visual.`,
+      "Lakukan analisis visual secara langsung terhadap gambar tersebut.",
+      "Deskripsikan apa yang kamu LIHAT: struktur anatomi, densitas, kelainan morfologi, distribusi jaringan.",
+      "JANGAN hanya mengulangi hasil klasifikasi otomatis — itulah analisis model lain, bukan analisis visualmu.",
+      ""
+    );
+  } else {
+    systemLines.push(
+      "PERINGATAN: Tidak ada gambar yang dilampirkan.",
+      "Jawab hanya berdasarkan metadata DICOM dan catatan model klasifikasi di bawah.",
+      "Sampaikan kepada pembaca bahwa tidak ada analisis visual yang dilakukan.",
+      ""
+    );
+  }
+
+  if (mismatchWarning) {
+    systemLines.push(
+      "⚠️ PERINGATAN MISMATCH MODEL:",
+      mismatchWarning,
+      "Perhatikan bahwa hasil klasifikasi otomatis mungkin tidak relevan untuk gambar ini.",
+      ""
+    );
+  }
+
+  systemLines.push(
+    "FORMAT JAWABAN:",
+    "JANGAN menulis ulang metadata pasien (Nama pasien, ID, Modalitas, Tanggal, dll.) di awal jawaban Anda. Bagian ini sudah diisi oleh sistem secara terpisah.",
+    "1. **Temuan Visual** — Deskripsikan apa yang terlihat pada citra: organ, tekstur, densitas, area abnormal.",
+    "2. **Interpretasi Klinis** — Kaitkan temuan visual dengan kemungkinan kondisi medis.",
+    "3. **Catatan Model Klasifikasi** — Sebutkan secara singkat apa yang model otomatis deteksi (gunakan teks di bawah), dan apakah selaras dengan temuan visual.",
+    "4. **Batasan & Rekomendasi** — Sampaikan keterbatasan analisis dan anjurkan validasi dokter/radiolog.",
+    "",
+    "LARANGAN KERAS:",
+    "- DILARANG menulis ulang metadata pasien (seperti Nama pasien, ID, Modalitas, Tanggal, dll.) di awal jawaban Anda.",
+    "- DILARANG mencantumkan angka persentase atau nilai keyakinan numerik.",
+    "- DILARANG menyebut nama file teknis (ct_chest_0.dcm, dll).",
+    "- DILARANG menjadikan catatan model klasifikasi sebagai satu-satunya dasar jawaban."
+  );
+
+  const userLines = [
+    "INFO STUDI (metadata DICOM):",
+    contextStr || "Tidak tersedia.",
+    "",
+    "CATATAN MODEL KLASIFIKASI OTOMATIS (hanya referensi — bukan analisis visual):",
+    onnxQualitativeSummary,
+    "",
+    "PERTANYAAN:",
+    prompt || "Analisis hasil pemeriksaan ini secara komprehensif."
+  ];
+
+  const imagesToSend = [];
+  if (body && Array.isArray(body.images)) {
+    body.images.forEach((img) => {
+      if (img && img.data) {
+        imagesToSend.push(img.data);
+      }
+    });
+  }
+
+  return [
+    {
+      role: "system",
+      content: systemLines.join("\n")
+    },
+    {
+      role: "user",
+      content: userLines.join("\n"),
+      images: imagesToSend.length > 0 ? imagesToSend : undefined
+    }
+  ];
+}
+
 function buildDicomAnalysisCallbackPrompt(body) {
   const prompt = body?.prompt || body?.question || body?.message || "";
   const context =
@@ -1892,31 +2234,13 @@ function buildDicomAnalysisCallbackPrompt(body) {
 
 async function handleDicomAnalysisCallback(req, res) {
   try {
-    const finalPrompt = buildDicomAnalysisCallbackPrompt(req.body || {});
+    const ollamaMessages = buildDicomAnalysisCallbackMessages(req.body || {});
+    const imagesCount = [
+      ...(Array.isArray(req.body?.images) ? req.body.images : []),
+      ...(Array.isArray(req.body?.frames) ? req.body.frames : []),
+    ].length;
+    console.log(`[handleDicomAnalysisCallback] Images forwarded to LLM: ${imagesCount}`);
 
-    // Extract base64 image data for multimodal vision input
-    const imagesToSend = [];
-    if (req.body && Array.isArray(req.body.images)) {
-      req.body.images.forEach((img) => {
-        if (img && img.data) {
-          imagesToSend.push(img.data);
-        }
-      });
-    }
-    // [ISU 4] Log jumlah gambar yang dikirim ke LLM
-    console.log(`[handleDicomAnalysisCallback] Images forwarded to LLM: ${imagesToSend.length}`);
-
-    // Gunakan finalPrompt sebagai single user message agar images dapat dilampirkan
-    // ke pesan yang sama (multimodal vision).
-    // PENTING: Untuk Ollama /api/chat, images HARUS ada di dalam object pesan,
-    // bukan di level atas request body.
-    const ollamaMessages = [
-      {
-        role: "user",
-        content: finalPrompt,
-        images: imagesToSend.length > 0 ? imagesToSend : undefined,
-      },
-    ];
     const response = await ollamaInstance.post("/chat", {
       model: OLLAMA_MODEL,
       messages: ollamaMessages,
@@ -1953,7 +2277,7 @@ async function handleDicomAnalysisCallback(req, res) {
       response: responseText,
       skipDicomContext: true,
       languageFallbackUsed,
-      imagesProcessed: imagesToSend.length,
+      imagesProcessed: imagesCount,
       source: "vismed-dicom-analysis-callback",
     });
   } catch (err) {
@@ -1997,10 +2321,54 @@ async function handleChatbot(req, res) {
 
     const answerLevel = detectAnswerLevel(prompt);
 
-    // [ISU 3] Read conversation history from frontend (max 6 messages)
-    const conversationHistory = Array.isArray(req.body?.history)
-      ? req.body.history.slice(-6)
+    // [ISU 3] Read conversation history from frontend (max 3 messages)
+    let conversationHistory = Array.isArray(req.body?.history)
+      ? req.body.history.slice(-3)
       : [];
+
+    // Filter out transient disambiguation interactions to prevent LLM confusion/parroting
+    const filteredHistory = [];
+    for (let i = 0; i < conversationHistory.length; i++) {
+      const msg = conversationHistory[i];
+      if (
+        msg &&
+        msg.role === "assistant" &&
+        (String(msg.content).includes("Saya menemukan lebih dari satu studi") ||
+          String(msg.content).includes("Silakan pilih salah satu pemeriksaan"))
+      ) {
+        // Remove the preceding user query that triggered the disambiguation
+        if (filteredHistory.length > 0 && filteredHistory[filteredHistory.length - 1].role === "user") {
+          filteredHistory.pop();
+        }
+        continue;
+      }
+      filteredHistory.push(msg);
+    }
+    conversationHistory = filteredHistory;
+
+    // Detect study/patient switch and clear history to avoid cross-study model distraction/parroting
+    const currentQuery = extractDicomQuery(prompt);
+    if (currentQuery.orthancStudyId || currentQuery.studyInstanceUid || currentQuery.patientId || currentQuery.patientName) {
+      let hasDifferentStudyInHistory = false;
+      for (const msg of conversationHistory) {
+        if (msg && msg.role === "user" && msg.content) {
+          const histQuery = extractDicomQuery(msg.content);
+          const isDifferent =
+            (currentQuery.orthancStudyId && histQuery.orthancStudyId && currentQuery.orthancStudyId !== histQuery.orthancStudyId) ||
+            (currentQuery.studyInstanceUid && histQuery.studyInstanceUid && currentQuery.studyInstanceUid !== histQuery.studyInstanceUid) ||
+            (currentQuery.patientId && histQuery.patientId && currentQuery.patientId !== histQuery.patientId) ||
+            (currentQuery.patientName && histQuery.patientName && currentQuery.patientName !== histQuery.patientName);
+          if (isDifferent) {
+            hasDifferentStudyInHistory = true;
+            break;
+          }
+        }
+      }
+      if (hasDifferentStudyInHistory) {
+        console.log("[handleChatbot] Detected different study/patient in history. Clearing history to prevent LLM confusion.");
+        conversationHistory = [];
+      }
+    }
 
     // Initialize image collection for chatbot Vision input
     const chatbotImages = [];
@@ -2215,26 +2583,33 @@ async function handleChatbot(req, res) {
         fastResponse: true,
       });
     }
+    // Auto-fetch representative PACS images if chatbotImages is empty
+    if (chatbotImages.length === 0 && dicomContext) {
+      try {
+        const parsed = JSON.parse(dicomContext);
+        const study = parsed.studies?.[0];
+        const studyId = study?.extracted?.orthancStudyId || study?.orthanc?.orthancStudyId;
+        if (studyId) {
+          console.log(`[handleChatbot] Fetching representative image for study ${studyId}...`);
+          const fetchedImages = await fetchStudyImages(studyId);
+          if (fetchedImages.length > 0) {
+            chatbotImages.push(...fetchedImages);
+            console.log(`[handleChatbot] Successfully attached ${fetchedImages.length} images from PACS to chatbot.`);
+          }
+        }
+      } catch (e) {
+        // ignore JSON parsing errors
+      }
+    }
 
-    const finalPrompt = buildPromptWithDicomContext(
+    console.log(`[handleChatbot] ChatbotImages forwarded to LLM: ${chatbotImages.length}`);
+    const ollamaMessages = buildChatbotMessages(
       prompt,
       dicomContext,
+      conversationHistory,
+      chatbotImages,
       answerLevel
     );
-
-    // [ISU 3] Susun messages untuk /chat: history sebagai konteks sebelumnya,
-    // finalPrompt sebagai user message terakhir.
-    // PENTING: Untuk Ollama /api/chat, images HARUS di dalam message object,
-    // bukan di level atas request body.
-    console.log(`[handleChatbot] ChatbotImages forwarded to LLM: ${chatbotImages.length}`);
-    const ollamaMessages = [
-      ...conversationHistory,
-      {
-        role: "user",
-        content: finalPrompt,
-        images: chatbotImages.length > 0 ? chatbotImages : undefined,
-      },
-    ];
     const response = await ollamaInstance.post("/chat", {
       model: OLLAMA_MODEL,
       messages: ollamaMessages,

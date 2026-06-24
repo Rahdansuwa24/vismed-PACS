@@ -1,0 +1,6 @@
+watchdog
+PyMuPDF
+pydicom
+requests
+python-dotenv
+Pillow

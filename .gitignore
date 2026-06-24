@@ -3,13 +3,46 @@ PRD-01_Windows_Frontend.md
 PRD-02_VM_Backend.md
 listing_model.md
 peningkatan_keandalan_vision.md
+PRD_Integrasi_ECG_Orthanc.md
 
-# Logs
-logs
+# Logs and Temporary files
+logs/
 *.log
+tmp/
+temp/
 
 # Dependency directories
 node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+
+# Python virtual environments & cache
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Large binary files & Machine learning models
+*.onnx
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.h5
+vision_models/
+test_monai_eager.onnx
+
+# Nested repositories
+brain-stroke-segmentation/
+
+# Ad-hoc local test scripts
+backend-vismed/test_*.js
 
 # Environments
 .env
