@@ -118,6 +118,14 @@ const Dashboard = () => {
     info: "Real-time Gateway",
     path: "/ecg-forwarder",
   },
+  {
+    icon: <Activity className="vismedX_svg" size={28} />,
+    title: "ECG Forwarder Monitor",
+    tag: "ECG Integration",
+    desc: "Monitor FTP file receipt, conversion progress, and transmission to Orthanc PACS & SIMRS",
+    info: "Real-time Gateway",
+    path: "/ecg-forwarder",
+  },
   ];
 
   return (
