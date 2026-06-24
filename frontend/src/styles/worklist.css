@@ -27,6 +27,26 @@ padding:22px;
 border-bottom:1px solid rgba(255,255,255,.05);
 }
 
+.genesysris-back-btn{
+  width:36px;
+  height:36px;
+  border:none;
+  border-radius:10px;
+  background:#172033;
+  color:#e2e8f0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:.2s;
+}
+
+.genesysris-back-btn:hover{
+  background:#00c2a8;
+  color:white;
+}
+
 .genesysris-brand-logo{
   width:40px;
   height:40px;
