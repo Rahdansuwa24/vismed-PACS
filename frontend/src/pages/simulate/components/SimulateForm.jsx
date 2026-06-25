@@ -47,7 +47,7 @@ const SimulateForm = ({ form, loading, updateForm, submitForm }) => {
           <input name="scheduleTime" type="time" value={form.scheduleTime} onChange={updateForm} required />
         </label>
 
-        <label className="sim-field">
+        {/* <label className="sim-field">
           <span>Modality</span>
           <select name="modality" value={form.modality} onChange={updateForm}>
             <option value="CT">CT</option>
@@ -62,7 +62,7 @@ const SimulateForm = ({ form, loading, updateForm, submitForm }) => {
         <label className="sim-field">
           <span>AE Title</span>
           <input name="aet" value={form.aet} onChange={updateForm} required />
-        </label>
+        </label> */}
       </div>
 
       <button className="sim-submit" type="submit" disabled={loading}>

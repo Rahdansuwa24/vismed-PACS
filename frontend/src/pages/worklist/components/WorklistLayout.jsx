@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../../styles/worklist.css";
 import logo from "../../../assets/vismed-logo.png";
@@ -24,12 +24,42 @@ import {
   FaBars,
 } from "react-icons/fa";
 
-const WorklistLayout = ({ title = "Technologist", children }) => {
+const WorklistLayout = ({ 
+  title = "Technologist", 
+  children,
+  onSelectClick,
+  isSelectActive,
+  onSaveProcess,
+  selectedPatient,
+  onProcessClick
+}) => {
   const navigate = useNavigate();
-  const [activeMenu, setActiveMenu] = useState("");
+  const [activeMenu, setActiveMenu] = useState(() => {
+    const path = window.location.pathname;
+    if (path === "/worklist-simulator") return "register";
+    if (path === "/worklist-radiology") return "admission";
+    if (path === "/") return "home";
+    return "";
+  });
   const [rightMenu, setRightMenu] = useState(false);
   const [sidebarPinned, setSidebarPinned] = useState(false);
   const [showProcessModal, setShowProcessModal] = useState(false);
+
+  const [technologist1, setTechnologist1] = useState("Radiographer 1");
+  const [technologist2, setTechnologist2] = useState("Select Technologist");
+  const [room, setRoom] = useState("Ruangan DR");
+
+  const [modality, setModality] = useState("CT");
+  const [aet, setAet] = useState("MODALITY1");
+  const [radiologist, setRadiologist] = useState("dr. Andi, Sp.Rad");
+
+  useEffect(() => {
+    if (selectedPatient) {
+      setModality(selectedPatient.modality || "CT");
+      setAet(selectedPatient.aet || "MODALITY1");
+      setRadiologist(selectedPatient.radiologist && selectedPatient.radiologist !== "-" ? selectedPatient.radiologist : "dr. Andi, Sp.Rad");
+    }
+  }, [selectedPatient]);
 
   return (
     <div className="genesysris-page">
@@ -43,7 +73,7 @@ const WorklistLayout = ({ title = "Technologist", children }) => {
           >
             <FaArrowLeft />
           </button>
-
+ 
           <div className="genesysris-brand-logo">
             <img src={logo} alt="logo" className="genesysris-brand-imglogo" />
           </div>
@@ -66,7 +96,10 @@ const WorklistLayout = ({ title = "Technologist", children }) => {
         <div className="genesysris-menu">
           <div
             className={`genesysris-menu-item ${activeMenu === "home" ? "active" : ""}`}
-            onClick={() => setActiveMenu("home")}
+            onClick={() => {
+              setActiveMenu("home");
+              navigate("/");
+            }}
           >
             <FaHome />
             <span>Home</span>
@@ -74,69 +107,70 @@ const WorklistLayout = ({ title = "Technologist", children }) => {
 
           <div
             className={`genesysris-menu-item ${activeMenu === "register" ? "active" : ""}`}
-            onClick={() => setActiveMenu("register")}
+            onClick={() => {
+              setActiveMenu("register");
+              navigate("/worklist-simulator");
+            }}
           >
             <FaClipboardList />
             <span>Register</span>
           </div>
 
-          <div className="genesysris-menu-title">WORKLIST</div>
+          {/* <div className="genesysris-menu-title">WORKLIST</div> */}
 
-          <div
-            className={`genesysris-menu-item ${activeMenu === "allStudies" ? "active" : ""}`}
-            onClick={() => setActiveMenu("allStudies")}
-          >
-            <FaClipboardList />
-            <span>All Studies</span>
-          </div>
-
-          <div
+          {/* <div
             className={`genesysris-menu-item ${activeMenu === "admission" ? "active" : ""}`}
-            onClick={() => setActiveMenu("admission")}
+            onClick={() => {
+              setActiveMenu("admission");
+              navigate("/worklist-radiology");
+            }}
           >
             <FaClipboardList />
             <span>Admission</span>
-          </div>
+          </div> */}
 
-          <div
+          {/* <div
             className={`genesysris-menu-item ${activeMenu === "technologist" ? "active" : ""}`}
-            onClick={() => setActiveMenu("technologist")}
+            onClick={() => {
+              setActiveMenu("technologist");
+              navigate("/worklist-radiology");
+            }}
           >
             <FaUserMd />
             <span>Technologist</span>
-          </div>
+          </div> */}
 
-          <div
+          {/* <div
             className={`genesysris-menu-item ${activeMenu === "physicist" ? "active" : ""}`}
             onClick={() => setActiveMenu("physicist")}
           >
             <FaFlask />
             <span>Physicist</span>
-          </div>
+          </div> */}
 
-          <div
+          {/* <div
             className={`genesysris-menu-item ${activeMenu === "consumable" ? "active" : ""}`}
             onClick={() => setActiveMenu("consumable")}
           >
             <FaBoxes />
             <span>Consumable</span>
-          </div>
+          </div> */}
 
-          <div
+          {/* <div
             className={`genesysris-menu-item ${activeMenu === "qc" ? "active" : ""}`}
             onClick={() => setActiveMenu("qc")}
           >
             <FaCheckCircle />
             <span>Quality Control</span>
-          </div>
+          </div> */}
 
-          <div
+          {/* <div
             className={`genesysris-menu-item ${activeMenu === "dashboard" ? "active" : ""}`}
             onClick={() => setActiveMenu("dashboard")}
           >
             <FaChartBar />
             <span>Dashboard</span>
-          </div>
+          </div> */}
         </div>
       </aside>
 
@@ -173,15 +207,15 @@ const WorklistLayout = ({ title = "Technologist", children }) => {
           if (!sidebarPinned) setRightMenu(false);
         }}
       >
-        <button className="genesysris-action-btn">
+        {/* <button className="genesysris-action-btn">
           <FaUserCog />
           {rightMenu && <span>Setting</span>}
-        </button>
+        </button> */}
 
-        <button className="genesysris-action-btn">
+        {/* <button className="genesysris-action-btn">
           <FaEdit />
           {rightMenu && <span>Edit</span>}
-        </button>
+        </button> */}
 
         <button className="genesysris-action-btn">
           <FaFileExcel />
@@ -190,21 +224,34 @@ const WorklistLayout = ({ title = "Technologist", children }) => {
 
         <button
           className="genesysris-action-btn"
-          onClick={() => setShowProcessModal(true)}
+          onClick={async () => {
+            if (!selectedPatient) {
+              alert("Silakan pilih pasien terlebih dahulu menggunakan tombol Select.");
+              return;
+            }
+            if (onProcessClick) {
+              await onProcessClick();
+            }
+            setShowProcessModal(true);
+          }}
         >
           <FaClipboardList />
           {rightMenu && <span>Process</span>}
         </button>
 
-        <button className="genesysris-action-btn">
+        <button 
+          className={`genesysris-action-btn ${isSelectActive ? "genesysris-btn-active" : ""}`}
+          onClick={onSelectClick}
+          style={isSelectActive ? { backgroundColor: "#00d4ff", color: "#090d16" } : {}}
+        >
           <FaCheck />
-          {rightMenu && <span>Select All</span>}
+          {rightMenu && <span>Select</span>}
         </button>
 
-        <button className="genesysris-action-btn">
+        {/* <button className="genesysris-action-btn">
           <FaTimes />
           {rightMenu && <span>Unselect All</span>}
-        </button>
+        </button> */}
 
         <button className="genesysris-action-btn">
           <FaSyncAlt />
@@ -228,15 +275,49 @@ const WorklistLayout = ({ title = "Technologist", children }) => {
               </button>
             </div>
 
-            <label>Technologist 1</label>
-            <select>
+             <label>Modality</label>
+            <select value={modality} onChange={(e) => setModality(e.target.value)}>
+              <option value="CT">CT</option>
+              <option value="MR">MRI</option>
+              <option value="ES">Endoscopy</option>
+              <option value="CR">X-Ray</option>
+              <option value="XC">External-camera Photography</option>
+              <option value="US">Ultrasound</option>
+            </select>
+
+            <label>AE Title</label>
+            <input
+              type="text"
+              value={aet}
+              onChange={(e) => setAet(e.target.value)}
+              style={{
+                width: "100%",
+                height: "48px",
+                border: "none",
+                borderRadius: "12px",
+                background: "#172033",
+                color: "white",
+                padding: "0 14px",
+                marginBottom: "10px",
+              }}
+            />
+
+             <label>Radiologist</label>
+            <select value={radiologist} onChange={(e) => setRadiologist(e.target.value)}>
+              <option value="dr. Andi, Sp.Rad">dr. Andi, Sp.Rad</option>
+              <option value="dr. Sarah, Sp.Rad">dr. Sarah, Sp.Rad</option>
+              <option value="dr. Rahmat, Sp.Rad">dr. Rahmat, Sp.Rad</option>
+            </select>
+
+             <label>Technologist 1</label>
+            <select value={technologist1} onChange={(e) => setTechnologist1(e.target.value)}>
               <option>Radiographer 1</option>
               <option>Radiographer 2</option>
               <option>Radiographer 3</option>
             </select>
 
             <label>Technologist 2</label>
-            <select>
+            <select value={technologist2} onChange={(e) => setTechnologist2(e.target.value)}>
               <option>Select Technologist</option>
               <option>Radiographer A</option>
               <option>Radiographer B</option>
@@ -248,7 +329,7 @@ const WorklistLayout = ({ title = "Technologist", children }) => {
             </div>
 
             <label>Room</label>
-            <select>
+            <select value={room} onChange={(e) => setRoom(e.target.value)}>
               <option>Ruangan DR</option>
               <option>Ruangan Panoramic</option>
               <option>Ruangan CR</option>
@@ -263,8 +344,24 @@ const WorklistLayout = ({ title = "Technologist", children }) => {
 
             <div className="genesysris-modal-footer">
               <button onClick={() => setShowProcessModal(false)}>Close</button>
-              <button className="save">Save</button>
-              <button className="save-mwl">Save & MWL</button>
+              <button
+                className="save"
+                onClick={() => {
+                  if (onSaveProcess) onSaveProcess(selectedPatient, { technologist1, technologist2, room, modality, aet, radiologist });
+                  setShowProcessModal(false);
+                }}
+              >
+                Save
+              </button>
+              <button
+                className="save-mwl"
+                onClick={() => {
+                  if (onSaveProcess) onSaveProcess(selectedPatient, { technologist1, technologist2, room, modality, aet, radiologist });
+                  setShowProcessModal(false);
+                }}
+              >
+                Save & MWL
+              </button>
             </div>
           </div>
         </div>

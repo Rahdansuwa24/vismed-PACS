@@ -67,6 +67,10 @@ function normalizeMwlPayload(body) {
     scheduleTime: formatTime(getBodyValue(body, "scheduleTime"), ""),
     aet: getBodyValue(body, "aet") || "MODALITY1",
     modality: validateModality(getBodyValue(body, "modality")),
+    technologist1: getBodyValue(body, "technologist1"),
+    technologist2: getBodyValue(body, "technologist2"),
+    room: getBodyValue(body, "room"),
+    radiologist: getBodyValue(body, "radiologist"),
   };
 }
 

@@ -191,9 +191,91 @@ router.post("/ecg-log", (req, res) => {
   res.json({ status: "ok", log: newLog });
 });
 
+router.get("/patient-view", async (req, res) => {
+  const patientID = req.query.patientID;
+  if (!patientID) {
+    return res.status(400).json({ error: "patientID is required" });
+  }
+
+  try {
+    const ORTHANC_URL = process.env.ORTHANC_URL || "http://10.9.23.18:8042";
+    const ORTHANC_USERNAME = process.env.ORTHANC_USERNAME || "orthanc";
+    const ORTHANC_PASSWORD = process.env.ORTHANC_PASSWORD || "orthanc";
+
+    // 1. Find studies in Orthanc
+    console.log(`[PACS patient-view] Finding studies for PatientID: ${patientID}`);
+    const findResponse = await axios.post(`${ORTHANC_URL}/tools/find`, {
+      Level: "Study",
+      Query: { PatientID: patientID },
+      Expand: true
+    }, {
+      auth: {
+        username: ORTHANC_USERNAME,
+        password: ORTHANC_PASSWORD
+      }
+    });
+
+    const studies = findResponse.data;
+    if (!studies || studies.length === 0) {
+      return res.status(404).json({ error: `Pasien dengan ID ${patientID} tidak ditemukan di PACS/Orthanc` });
+    }
+
+    // Sort studies to locate the most recent one (StudyDate desc, then StudyTime desc)
+    studies.sort((a, b) => {
+      const dateA = (a.MainDicomTags?.StudyDate || "") + (a.MainDicomTags?.StudyTime || "");
+      const dateB = (b.MainDicomTags?.StudyDate || "") + (b.MainDicomTags?.StudyTime || "");
+      return dateB.localeCompare(dateA);
+    });
+
+    const latestStudy = studies[0];
+    const studyID = latestStudy.ID;
+
+    // 2. Call the external decode-dicom study-analysis endpoint
+    const DICOM_ANALYSIS_URL = process.env.DICOM_ANALYSIS_URL || "http://10.9.23.18:4000/api/decode-dicom/study-analysis";
+    const VISMED_AI_URL = process.env.VISMED_AI_URL || "http://10.0.1.200:3000/ai/dicom-analysis";
+
+    console.log(`[PACS patient-view] Calling study-analysis for Study ID: ${studyID}`);
+    try {
+      const analysisResponse = await axios.post(DICOM_ANALYSIS_URL, {
+        orthancStudyId: studyID,
+        aiUrl: VISMED_AI_URL,
+        skipDicomContext: true,
+        returnDecodedStudy: true
+      }, {
+        timeout: 90000 // 90 seconds timeout
+      });
+
+      res.json({
+        study: latestStudy,
+        analysis: analysisResponse.data
+      });
+    } catch (analysisErr) {
+      console.error("[PACS patient-view] Study analysis failed, falling back to raw metadata:", analysisErr.message);
+      // Fallback: return study metadata and empty instances so UI doesn't crash
+      res.json({
+        study: latestStudy,
+        analysis: {
+          decodedStudy: {
+            studyMetadata: latestStudy.MainDicomTags || {},
+            instances: []
+          },
+          onnxResult: null,
+          aiResponse: null,
+          error: `Gagal memproses detail citra (Decode server error: ${analysisErr.message})`
+        }
+      });
+    }
+
+  } catch (err) {
+    console.error("[PACS patient-view] Error:", err.message);
+    res.status(500).json({ error: err.response?.data || err.message });
+  }
+});
+
 router.get("/ecg-logs", (req, res) => {
   const logs = readLogs();
   res.json(logs);
 });
 
 module.exports = router;
+
