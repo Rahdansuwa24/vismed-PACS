@@ -15,7 +15,7 @@ const initialForm = {
   procedureDesc: "CT THORAX",
   scheduleDate: "",
   scheduleTime: "",
-  modality: "CT",
+  modality: "END",
   aet: "MODALITY1",
 };
 

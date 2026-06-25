@@ -95,14 +95,14 @@ const Dashboard = () => {
       info: "Patient Access Viewer",
       path: "/patient-viewer",
     },
-    {
+    /* {
       icon: <ClipboardList className="vismedX_svg" size={28} />,
       title: "Radiology Worklist",
       tag: "Radiology",
       desc: "Manage radiology examination worklists, imaging studies, and workflow assignments efficiently",
       info: "Radiology Worklist",
       path: "/worklist-radiology",
-    },
+    }, */
     /*{
       icon: <ClipboardList className="vismedX_svg" size={28} />,
       title: "Polyclinic Worklist",
