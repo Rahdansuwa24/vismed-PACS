@@ -13,6 +13,8 @@ import {
     Database,
     Trash2,
     Stethoscope,
+    Sun,
+    Moon,
 } from "lucide-react";
 
 import "../styles/chat.css";
@@ -38,6 +40,9 @@ export default function ChatPage() {
     const [showUpload, setShowUpload] = useState(false);
     const [loading, setLoading] = useState(false);
     const [selectedDomain, setSelectedDomain] = useState("");
+    const [theme, setTheme] = useState(() => {
+        return localStorage.getItem("chat_theme") || "dark";
+    });
 
     // State untuk history sidebar
     const [chats, setChats] = useState(() => {
@@ -413,6 +418,11 @@ export default function ChatPage() {
         localStorage.setItem("chat_history", JSON.stringify(chats));
     }, [chats]);
 
+    // Save theme to localStorage
+    useEffect(() => {
+        localStorage.setItem("chat_theme", theme);
+    }, [theme]);
+
     // Update messages when switching chats
     useEffect(() => {
         if (!activeChatId) return;
@@ -428,7 +438,7 @@ export default function ChatPage() {
     // -------------------------------------------------------------------------
 
     return (
-        <div className="chatx-root">
+        <div className={`chatx-root ${theme}`}>
             {/* SIDEBAR */}
             <aside className="chatx-sidebar">
                 <button
@@ -504,7 +514,16 @@ export default function ChatPage() {
                         <img src={logo} className="chatx-logo-img" alt="logo" />
                         <span className="chatx-logo-text">VisMed Ai</span>
                     </div>
-                    <div className="chatx-status">● Online</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <div className="chatx-status">● Online</div>
+                        <button
+                            className="chatx-theme-toggle"
+                            onClick={() => setTheme(prev => prev === "dark" ? "light" : "dark")}
+                            title="Ubah Tema"
+                        >
+                            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+                        </button>
+                    </div>
                 </header>
 
                 {/* CONTENT */}

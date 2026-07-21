@@ -2560,11 +2560,23 @@ async function handleChatbot(req, res) {
       });
     }
 
-    const fastDicomResponse = buildFastDicomResponse(
-      prompt,
-      dicomContext,
-      answerLevel
-    );
+    // Check if we have a valid studyId — if so, skip fast response so MedGemma
+    // can be called with actual DICOM images for visual analysis.
+    let hasFetchableStudy = false;
+    if (dicomContext && chatbotImages.length === 0) {
+      try {
+        const parsed = JSON.parse(dicomContext);
+        const study = parsed.studies?.[0];
+        const studyId = study?.extracted?.orthancStudyId || study?.orthanc?.orthancStudyId;
+        if (studyId) {
+          hasFetchableStudy = true;
+        }
+      } catch (_) { /* not JSON */ }
+    }
+
+    const fastDicomResponse = !hasFetchableStudy
+      ? buildFastDicomResponse(prompt, dicomContext, answerLevel)
+      : null;
 
     if (fastDicomResponse) {
       const viewerLinks = isViewerRequest(prompt)

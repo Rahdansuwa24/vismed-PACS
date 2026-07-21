@@ -700,3 +700,205 @@
   border-color: #00c2a8;
   color: #fff;
 }
+
+
+/* ================= THEME TOGGLE BUTTON ================= */
+.chatx-theme-toggle {
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: #E5E7EB;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chatx-theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
+}
+
+/* ================= LIGHT MODE OVERRIDES ================= */
+.chatx-root.light {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.chatx-root.light .chatx-theme-toggle {
+  background: rgba(0, 0, 0, 0.05);
+  color: #0f172a;
+}
+
+.chatx-root.light .chatx-theme-toggle:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.chatx-root.light .chatx-sidebar {
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
+}
+
+.chatx-root.light .chatx-history-item {
+  color: #475569;
+}
+
+.chatx-root.light .chatx-history-item:hover {
+  background: rgba(0, 194, 168, 0.1);
+  color: #009689;
+}
+
+.chatx-root.light .chatx-history-item.active {
+  background: rgba(0, 194, 168, 0.15);
+  color: #009689;
+}
+
+.chatx-root.light .chatx-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.chatx-root.light .chatx-title {
+  color: #0f172a;
+}
+
+.chatx-root.light .chatx-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.chatx-root.light .chatx-card-desc {
+  color: #475569;
+}
+
+.chatx-root.light .chatx-bubble {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.chatx-root.light .chatx-user .chatx-bubble {
+  background: linear-gradient(135deg, #00c2a8, #009689);
+  color: white;
+}
+
+.chatx-root.light .chatx-inputbar {
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+}
+
+.chatx-root.light .chatx-input {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+}
+
+.chatx-root.light .chatx-input:focus {
+  border-color: #00c2a8;
+}
+
+.chatx-root.light .chatx-back {
+  background: rgba(0, 0, 0, 0.05);
+  color: #0f172a;
+}
+
+.chatx-root.light .chatx-back:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.chatx-root.light .chatx-clear-btn {
+  border: 1px solid #cbd5e1;
+  color: #475569;
+}
+
+.chatx-root.light .chatx-clear-btn:hover {
+  color: #ff4d4f;
+  border-color: #ff4d4f;
+}
+
+.chatx-root.light .chatx-filebar {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+
+.chatx-root.light .chatx-file-item:hover {
+  background: rgba(0, 194, 168, 0.08);
+}
+
+.chatx-root.light .chatx-file-name {
+  color: #0f172a;
+}
+
+.chatx-root.light .chatx-file-meta {
+  color: #475569;
+}
+
+.chatx-root.light .chatx-bubble-file {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.chatx-root.light .chatx-user .chatx-bubble-file {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.chatx-root.light .chatx-close {
+  color: #0f172a;
+}
+
+.chatx-root.light .chatx-upload-dropdown {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.chatx-root.light .chatx-upload-item {
+  color: #0f172a;
+}
+
+.chatx-root.light .chatx-upload-item:hover {
+  background: rgba(0, 194, 168, 0.1);
+}
+
+.chatx-root.light .chatx-candidate-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+}
+
+.chatx-root.light .chatx-candidate-btn:hover:not(:disabled) {
+  background: rgba(0, 194, 168, 0.1);
+  border-color: #00c2a8;
+  color: #009689;
+}
+
+.chatx-root.light .chatx-domain-select {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+}
+
+.chatx-root.light .chatx-domain-select option {
+  background: #ffffff;
+}
+
+.chatx-root.light .chatx-suggestions {
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+}
+
+.chatx-root.light .chatx-suggestion-chip {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+}
+
+.chatx-root.light .chatx-suggestion-chip:hover:not(:disabled) {
+  background: rgba(0, 194, 168, 0.1);
+  border-color: #00c2a8;
+  color: #009689;
+}
+
