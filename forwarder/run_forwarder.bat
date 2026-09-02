@@ -7,21 +7,24 @@ echo ===================================================
 echo             VisMed ECG Forwarder Gateway           
 echo ===================================================
 echo.
-echo Memeriksa konfigurasi di file .env...
-echo.
 
 cd /d "%~dp0"
 
 if not exist .env (
     echo [ERROR] File .env tidak ditemukan! 
-    echo Harap buat file .env terlebih dahulu di folder ini.
+    echo Harap pastikan file .env sudah tersedia di folder ini.
     pause
     exit /b
 )
 
-echo Menjalankan script pemantau...
+echo Memulai pemantauan folder dan integrasi ECG...
 echo.
-.\venv\Scripts\python.exe forwarder.py
+
+if exist ".\venv\Scripts\python.exe" (
+    .\venv\Scripts\python.exe forwarder.py
+) else (
+    python forwarder.py
+)
 
 echo.
 echo Pemantauan terhenti atau mengalami error.
