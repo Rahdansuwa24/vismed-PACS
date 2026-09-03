@@ -1,3 +1,4 @@
+import sys
 import os
 import time
 import logging
@@ -14,21 +15,29 @@ from pydicom.dataset import FileDataset, FileMetaDataset, Dataset
 from pydicom.uid import generate_uid, SecondaryCaptureImageStorage, ExplicitVRLittleEndian
 from PIL import Image
 
+# Resolusi path absolut direktori script / executable (.exe)
+if getattr(sys, 'frozen', False):
+    BASE_DIR = os.path.dirname(sys.executable)
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Load environment variables (.env yang berada di folder yang sama dengan script/exe)
+env_path = os.path.join(BASE_DIR, ".env")
+load_dotenv(dotenv_path=env_path)
+
 # Setup logging
+log_path = os.path.join(BASE_DIR, "forwarder.log")
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
     handlers=[
-        logging.FileHandler("forwarder.log", encoding="utf-8"),
+        logging.FileHandler(log_path, encoding="utf-8"),
         logging.StreamHandler()
     ]
 )
 logger = logging.getLogger(__name__)
 
-# Load environment variables
-load_dotenv()
-
-WATCH_DIR = os.getenv("WATCH_DIR", r"D:\PA\EDAN\EDAN")
+WATCH_DIR = os.getenv("WATCH_DIR", r"C:\EDAN")
 ORTHANC_URL = os.getenv("ORTHANC_URL", "http://localhost:8042").rstrip("/")
 ORTHANC_USERNAME = os.getenv("ORTHANC_USERNAME", "orthanc")
 ORTHANC_PASSWORD = os.getenv("ORTHANC_PASSWORD", "orthanc")
@@ -172,11 +181,23 @@ class SIMRSClient:
                 )
                 
                 tanggal_kunjungan = (
+                    candidate_data.get("tgl_dmy") or 
                     candidate_data.get("tanggal_kunjungan") or 
                     candidate_data.get("tgl_kunjungan") or 
                     candidate_data.get("tgl_registrasi") or 
-                    time.strftime("%d-%m-%Y")
+                    ""
                 )
+
+                # Jika tanggal_kunjungan masih kosong tapi tgl (YYYY-MM-DD) ada, konversi ke DD-MM-YYYY
+                if not tanggal_kunjungan and candidate_data.get("tgl"):
+                    tgl_parts = str(candidate_data.get("tgl")).split("-")
+                    if len(tgl_parts) == 3 and len(tgl_parts[0]) == 4:
+                        tanggal_kunjungan = f"{tgl_parts[2]}-{tgl_parts[1]}-{tgl_parts[0]}"
+                    else:
+                        tanggal_kunjungan = str(candidate_data.get("tgl"))
+
+                if not tanggal_kunjungan:
+                    tanggal_kunjungan = time.strftime("%d-%m-%Y")
 
                 patient_info = {
                     "norm": str(norm).strip(),
@@ -192,7 +213,7 @@ class SIMRSClient:
                     "tgl": str(candidate_data.get("tgl", "")).strip()
                 }
 
-                logger.info(f"[SIMRS 1/3] Data pelayanan berhasil diparsing: {patient_info['nama_pasien']} (No.RM: {patient_info['norm']}, Unit: {patient_info['unit']})")
+                logger.info(f"[SIMRS 1/3] Data pelayanan berhasil diparsing: {patient_info['nama_pasien']} (No.RM: {patient_info['norm']}, TglKunjungan: {patient_info['tanggal_kunjungan']})")
                 return patient_info
             else:
                 logger.error(f"[SIMRS 1/3] Gagal cek pelayanan. Status {response.status_code}: {response.text}")
@@ -204,7 +225,7 @@ class SIMRSClient:
     @staticmethod
     def get_token(norm, birthdate):
         """
-        Langkah 2: Get Token
+        Langkah 2: Get Token Otentikasi
         POST param: { norm: "000120", birthdate: "2024-03-01" }
         """
         if not SIMRS_GET_TOKEN_URL:
@@ -213,8 +234,8 @@ class SIMRSClient:
 
         try:
             payload = {
-                "norm": str(norm),
-                "birthdate": str(birthdate)
+                "norm": str(norm).strip(),
+                "birthdate": str(birthdate).strip()
             }
             logger.info(f"[SIMRS 2/3] Meminta Token ke {SIMRS_GET_TOKEN_URL} dengan payload: {payload}")
             response = requests.post(SIMRS_GET_TOKEN_URL, json=payload, timeout=10)
@@ -223,16 +244,16 @@ class SIMRSClient:
 
             if response.status_code == 200:
                 res_data = response.json()
-                token = (
-                    res_data.get("token") or 
-                    res_data.get("data", {}).get("token") if isinstance(res_data.get("data"), dict) else None or 
-                    res_data.get("response", {}).get("token") if isinstance(res_data.get("response"), dict) else None or
-                    res_data.get("access_token")
-                )
-                if not token and isinstance(res_data, str):
-                    token = res_data
-                logger.info("[SIMRS 2/3] Token otentikasi berhasil didapatkan.")
-                return token
+                token = ""
+                if isinstance(res_data, dict):
+                    if "response" in res_data and isinstance(res_data["response"], dict):
+                        token = res_data["response"].get("token", "")
+                    elif "data" in res_data and isinstance(res_data["data"], dict):
+                        token = res_data["data"].get("token", "")
+                    elif "token" in res_data:
+                        token = res_data.get("token", "")
+                
+                return token if token else None
             else:
                 logger.error(f"[SIMRS 2/3] Gagal mendapatkan token. Status {response.status_code}: {response.text}")
                 return None
@@ -258,19 +279,21 @@ class SIMRSClient:
             }
             form_data = {
                 "tanggal_kunjungan": str(patient_info.get("tanggal_kunjungan", time.strftime("%d-%m-%Y"))),
-                "kunjungan_id": str(patient_info.get("kunjungan_id", "")),
-                "pelayanan_id": str(patient_info.get("pelayanan_id", "")),
+                "kunjungan_id": int(patient_info.get("kunjungan_id")) if str(patient_info.get("kunjungan_id")).isdigit() else patient_info.get("kunjungan_id", 0),
+                "pelayanan_id": int(patient_info.get("pelayanan_id")) if str(patient_info.get("pelayanan_id")).isdigit() else patient_info.get("pelayanan_id", 0),
                 "no_rm": str(patient_info.get("norm", "")),
                 "nama_pasien": str(patient_info.get("nama_pasien", "")),
                 "jenis_berkas": "HASIL ECG",
-                "klaim": "0",
-                "cetak_mcu": "1",
-                "pasien_id": str(patient_info.get("pasien_id", ""))
+                "klaim": 0,
+                "cetak_mcu": 1,
+                "pasien_id": int(patient_info.get("pasien_id")) if str(patient_info.get("pasien_id")).isdigit() else patient_info.get("pasien_id", 0)
             }
             
-            files = {
-                "files": (filename, image_bytes, "image/png")
-            }
+            # Kirim dalam format list of tuples agar mendukung key array files[] (Laravel/PHP/Node.js) maupun files
+            files = [
+                ("files[]", (filename, image_bytes, "image/png")),
+                ("files", (filename, image_bytes, "image/png"))
+            ]
 
             logger.info(f"[SIMRS 3/3] Mengunggah berkas gambar ECG ke {SIMRS_UPLOAD_ECG_URL} untuk No.RM: {form_data['no_rm']}")
             response = requests.post(

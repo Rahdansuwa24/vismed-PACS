@@ -18,7 +18,7 @@ function App() {
       <Routes>
         <Route path="/post-pacs" element={<ConvertPage />} />
         <Route path="/chat-ai" element={<ChatPage />} />
-        <Route path="/" element={<Dashboard />} />
+        {/* <Route path="/" element={<Dashboard />} /> */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/modality" element={<Modality />} />
         <Route path="/worklist-simulator" element={<SimulatePage />} />
