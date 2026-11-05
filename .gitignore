@@ -1,16 +1,11 @@
-# PRD and Markdown files
-PRD-01_Windows_Frontend.md
-PRD-02_VM_Backend.md
-listing_model.md
-peningkatan_keandalan_vision.md
-PRD_Integrasi_ECG_Orthanc.md
-INSTALLATION_GUIDE.md
-
 # Logs and Temporary files
 logs/
 *.log
 tmp/
 temp/
+
+# Runtime input/data directories
+data/ftp_incoming/
 
 # Dependency directories
 node_modules/
@@ -28,6 +23,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 runtime/
+archive/
 
 # Large binary files & Machine learning models
 *.onnx
@@ -39,7 +35,7 @@ runtime/
 *.h5
 vision_models/
 test_monai_eager.onnx
-models/
+/models/
 *.data
 
 # Nested repositories
@@ -47,6 +43,10 @@ brain-stroke-segmentation/
 
 # Ad-hoc local test scripts
 backend-vismed/test_*.js
+
+# Local backup/test artifacts
+*.bak
+*.raw
 
 # Environments
 .env
