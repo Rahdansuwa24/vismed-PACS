@@ -1,0 +1,22 @@
+{
+  "domain": "ct_chest_nodule",
+  "task": "detection",
+  "modelPath": "models/ct_chest_nodule/model.onnx",
+  "input": {
+    "width": 256,
+    "height": 256,
+    "depth": 96,
+    "channels": 1,
+    "layout": "NCDHW",
+    "preprocessing": "ct_chest_nodule"
+  },
+  "output": {
+    "threshold": 0.5,
+    "labels": ["Lung Nodule"]
+  },
+  "inputName": "input",
+  "source": {
+    "library": "MONAI/lung_nodule_ct_detection",
+    "note": "MONAI RetinaNet 3D lung nodule detector. Operates on 3D CT scan volume (96 slices stacked)."
+  }
+}

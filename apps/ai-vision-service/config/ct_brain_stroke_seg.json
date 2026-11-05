@@ -1,0 +1,21 @@
+{
+  "domain": "ct_brain_stroke_seg",
+  "task": "segmentation",
+  "modelPath": "models/ct_brain_stroke_seg/model.onnx",
+  "input": {
+    "width": 512,
+    "height": 512,
+    "channels": 3,
+    "layout": "NCHW",
+    "preprocessing": "ct_brain_stroke_seg"
+  },
+  "output": {
+    "threshold": 0.5,
+    "labels": ["Normal", "Brain Stroke"]
+  },
+  "inputName": "input",
+  "source": {
+    "library": "hoangtung386/brain-stroke-lcnn",
+    "note": "LCNN model for brain stroke segmentation. Expects a sequence of 3 adjacent slices (channels)."
+  }
+}

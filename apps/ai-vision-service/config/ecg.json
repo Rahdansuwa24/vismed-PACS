@@ -1,0 +1,27 @@
+{
+  "domain": "ecg",
+  "task": "classification",
+  "modelPath": "models/ecg/model.onnx",
+  "input": {
+    "time_steps": 5000,
+    "leads": 12,
+    "preprocessing": "ecg_ptbxl"
+  },
+  "output": {
+    "activation": "sigmoid",
+    "threshold": 0.5,
+    "labels": [
+      "NORM",
+      "MI",
+      "STTC",
+      "CD",
+      "HYP"
+    ]
+  },
+  "inputName": "input_values",
+  "source": {
+    "library": "Tumo505/SSL-ECG-Classification-model-card",
+    "dataset": "PTB-XL (12-lead ECG 500Hz)",
+    "note": "1D CNN classifier (SimCLR pre-trained) for 5 cardiovascular superclasses. Converted from PyTorch to ONNX."
+  }
+}

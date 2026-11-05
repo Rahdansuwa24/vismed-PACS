@@ -1,0 +1,35 @@
+{
+  "domain": "endoscopy",
+  "task": "classification",
+  "modelPath": "models/endoscopy/model.onnx",
+  "input": {
+    "width": 224,
+    "height": 224,
+    "channels": 3,
+    "layout": "NCHW",
+    "preprocessing": "standard",
+    "scale": 255.0,
+    "mean": [0.485, 0.456, 0.406],
+    "std": [0.229, 0.224, 0.225]
+  },
+  "output": {
+    "activation": "softmax",
+    "threshold": 0.3,
+    "labels": [
+      "dyed-lifted-polyps",
+      "dyed-resection-margins",
+      "esophagitis",
+      "normal-cecum",
+      "normal-pylorus",
+      "normal-z-line",
+      "polyps",
+      "ulcerative-colitis"
+    ]
+  },
+  "inputName": "input",
+  "source": {
+    "library": "mmuratarat/kvasir-v2-classifier",
+    "dataset": "Kvasir v2 (8,000 gastrointestinal images)",
+    "note": "Vision Transformer (ViT) fine-tuned on Kvasir-v2 for gastrointestinal classification. Converted from HuggingFace to ONNX."
+  }
+}

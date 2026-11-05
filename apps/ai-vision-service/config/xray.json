@@ -1,0 +1,43 @@
+{
+  "domain": "xray",
+  "task": "classification",
+  "modelPath": "models/xray/model.onnx",
+  "input": {
+    "width": 224,
+    "height": 224,
+    "channels": 1,
+    "layout": "NCHW",
+    "preprocessing": "torchxrayvision",
+    "maxval": 255.0
+  },
+  "output": {
+    "activation": "identity",
+    "threshold": 0.5,
+    "labels": [
+      "Atelectasis",
+      "Consolidation",
+      "Infiltration",
+      "Pneumothorax",
+      "Edema",
+      "Emphysema",
+      "Fibrosis",
+      "Effusion",
+      "Pneumonia",
+      "Pleural_Thickening",
+      "Cardiomegaly",
+      "Nodule",
+      "Mass",
+      "Hernia",
+      "Lung Lesion",
+      "Fracture",
+      "Lung Opacity",
+      "Enlarged Cardiomediastinum"
+    ]
+  },
+  "inputName": "image",
+  "source": {
+    "library": "torchxrayvision",
+    "weights": "densenet121-res224-all",
+    "note": "Probabilities are sigmoid outputs from the exported wrapper."
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "domain": "xray_tuberculosis",
+  "task": "classification",
+  "modelPath": "models/xray_tuberculosis/model.onnx",
+  "input": {
+    "width": 224,
+    "height": 224,
+    "channels": 3,
+    "layout": "NCHW",
+    "preprocessing": "tuberculosis"
+  },
+  "output": {
+    "activation": "sigmoid",
+    "threshold": 0.5,
+    "labels": ["Normal", "Active Tuberculosis"]
+  },
+  "inputName": "input",
+  "source": {
+    "library": "sukhmani1303/tuberculosis-vit-model",
+    "note": "Vision Transformer (ViT) for Active Tuberculosis detection in Chest X-Rays."
+  }
+}

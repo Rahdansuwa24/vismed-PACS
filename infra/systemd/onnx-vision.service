@@ -1,0 +1,20 @@
+[Unit]
+Description=PACS ONNX Vision Service
+After=network.target
+
+[Service]
+Type=simple
+User=pacs
+Group=pacs
+WorkingDirectory=/home/pacs/servers/apps/ai-vision-service
+Environment=PYTHONUNBUFFERED=1
+Environment=OMP_NUM_THREADS=1
+Environment=VISION_MAX_FILES=8
+Environment=VISION_MAX_FILE_BYTES=12582912
+Environment=VISION_MODEL_DIR=/home/pacs/servers/models
+ExecStart=/home/pacs/servers/runtime/venvs/ai-vision-service/bin/uvicorn app_inference:app --host 127.0.0.1 --port 5000 --workers 1
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

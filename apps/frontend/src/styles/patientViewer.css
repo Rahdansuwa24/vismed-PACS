@@ -1,0 +1,882 @@
+.pv-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a, #111827);
+  color: #e5e7eb;
+  font-family: "Inter", sans-serif;
+}
+
+/* ACCESS MODAL */
+
+.pv-access-overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(2, 6, 23, 0.88);
+
+  backdrop-filter: blur(12px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 9999;
+
+  padding: 20px;
+}
+
+.pv-access-modal {
+  width: 100%;
+  max-width: 420px;
+
+  background: rgba(15, 23, 42, 0.95);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 32px;
+
+  padding: 36px;
+
+  text-align: center;
+}
+
+.pv-access-logo {
+  width: 70px;
+  margin-bottom: 24px;
+}
+
+.pv-access-modal h2 {
+  font-size: 28px;
+  margin-bottom: 14px;
+}
+
+.pv-access-modal p {
+  color: #94a3b8;
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+
+.pv-access-input {
+  width: 100%;
+  height: 58px;
+
+  border-radius: 16px;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  background: rgba(255, 255, 255, 0.04);
+
+  color: white;
+
+  padding: 0 18px;
+
+  outline: none;
+
+  font-size: 16px;
+
+  margin-bottom: 18px;
+}
+
+.pv-access-input:focus {
+  border-color: #00c2a8;
+}
+
+.pv-access-button {
+  width: 100%;
+  height: 56px;
+
+  border: none;
+
+  border-radius: 16px;
+
+  background: linear-gradient(90deg, #00c2a8, #00d4ff);
+
+  color: white;
+
+  font-size: 16px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.pv-access-button:hover {
+  transform: translateY(-2px);
+}
+
+.pv-access-demo {
+  margin-top: 24px;
+
+  padding-top: 18px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pv-access-demo span {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.pv-access-demo p {
+  margin-top: 6px;
+
+  color: #00ffcc;
+
+  font-size: 15px;
+
+  font-weight: 600;
+}
+
+/* HEADER */
+
+.pv-header {
+  height: 80px;
+  padding: 0 24px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background: rgba(17, 24, 39, 0.75);
+
+  backdrop-filter: blur(10px);
+
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.pv-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.pv-brand-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pv-brand-logo {
+  width: 40px;
+  object-fit: contain;
+}
+
+.pv-brand-text h2 {
+  color: #00c2a8;
+  font-size: 22px;
+}
+
+.pv-brand-text p {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.pv-mobile-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: white;
+}
+
+/* LAYOUT */
+
+.pv-layout {
+  display: flex;
+  min-height: calc(100vh - 80px);
+}
+
+/* SIDEBAR */
+
+.pv-sidebar {
+  width: 340px;
+  padding: 24px;
+
+  background: rgba(17, 24, 39, 0.72);
+
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+
+  overflow-y: auto;
+}
+
+.pv-patient-card,
+.pv-study-info,
+.pv-report-box,
+.pv-series-card {
+  background: rgba(17, 24, 39, 0.72);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 24px;
+
+  backdrop-filter: blur(14px);
+}
+
+.pv-patient-card {
+  padding: 24px;
+  text-align: center;
+}
+
+.pv-avatar {
+  width: 72px;
+  height: 72px;
+
+  border-radius: 18px;
+
+  margin: auto auto 18px;
+
+  background: linear-gradient(135deg, #00c2a8, #00d4ff);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pv-patient-card p {
+  color: #94a3b8;
+}
+
+.pv-status {
+  margin-top: 18px;
+
+  background: #00c2a8;
+
+  color: white;
+
+  padding: 10px;
+
+  border-radius: 12px;
+
+  font-size: 13px;
+}
+
+.pv-study-info {
+  margin-top: 24px;
+  padding: 24px;
+}
+
+.pv-study-info h3 {
+  margin-bottom: 20px;
+}
+
+.pv-info-row {
+  margin-bottom: 18px;
+}
+
+.pv-info-row span {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.pv-info-row p {
+  margin-top: 6px;
+}
+
+/* REPORT */
+
+.pv-report-box {
+  margin-top: 24px;
+  padding: 24px;
+  min-height: 420px;
+}
+
+.pv-report-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 18px;
+}
+
+.pv-report-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  max-height: 520px;
+
+  overflow-y: auto;
+
+  padding-right: 4px;
+}
+
+.pv-report-section {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+  padding-bottom: 18px;
+}
+
+.pv-report-section:last-child {
+  border-bottom: none;
+}
+
+.pv-report-section h4 {
+  color: #00c2a8;
+  margin-bottom: 12px;
+}
+
+.pv-report-section p,
+.pv-report-section li {
+  color: #cbd5e1;
+  line-height: 1.9;
+}
+
+.pv-report-section ul {
+  padding-left: 18px;
+}
+
+.pv-report-doctor {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pv-report-date {
+  color: #94a3b8;
+}
+
+/* BUTTON */
+
+.pv-download-button {
+  margin-top: 24px;
+
+  width: 100%;
+  height: 56px;
+
+  border: none;
+  border-radius: 16px;
+
+  background: linear-gradient(90deg, #00c2a8, #00d4ff);
+
+  color: white;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+
+  cursor: pointer;
+}
+
+/* MAIN */
+
+.pv-main-content {
+  flex: 1;
+  padding: 24px;
+}
+
+.pv-viewer-container {
+  background: #020617;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 28px;
+
+  overflow: hidden;
+
+  position: relative;
+}
+
+.pv-main-image {
+  width: 100%;
+  height: 70vh;
+  object-fit: cover;
+}
+
+.pv-overlay {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+  right: 0;
+
+  display: flex;
+  justify-content: space-between;
+
+  padding: 18px;
+
+  background: linear-gradient(rgba(0, 0, 0, 0.7), transparent);
+}
+
+.pv-series-section {
+  margin-top: 24px;
+}
+
+.pv-series-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 20px;
+}
+
+.pv-series-grid {
+  display: grid;
+
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+
+  gap: 20px;
+}
+
+.pv-series-card {
+  overflow: hidden;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.pv-series-card:hover {
+  border-color: #00c2a8;
+}
+
+.pv-series-active {
+  border-color: #00c2a8;
+}
+
+.pv-series-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.pv-series-content {
+  padding: 18px;
+}
+
+.pv-series-content p {
+  color: #94a3b8;
+  margin: 12px 0;
+}
+
+.pv-series-content span {
+  color: #00ffcc;
+}
+
+/* MOBILE */
+
+@media (max-width: 1024px) {
+  .pv-layout {
+    flex-direction: column;
+  }
+
+  .pv-sidebar {
+    position: fixed;
+
+    left: -100%;
+
+    top: 80px;
+    bottom: 0;
+
+    z-index: 99;
+
+    transition: 0.3s;
+  }
+
+  .pv-sidebar-mobile-open {
+    left: 0;
+  }
+
+  .pv-mobile-toggle {
+    display: block;
+  }
+
+  .pv-main-content {
+    padding: 16px;
+  }
+
+  .pv-main-image {
+    height: 45vh;
+  }
+
+  .pv-series-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .pv-brand-text h2 {
+    font-size: 18px;
+  }
+
+  .pv-brand-text p {
+    font-size: 11px;
+  }
+
+  .pv-main-image {
+    height: 35vh;
+  }
+
+  .pv-overlay {
+    flex-direction: column;
+    gap: 10px;
+    font-size: 12px;
+  }
+}
+
+.pv-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+  margin-right: 12px;
+
+  border-radius: 10px;
+  cursor: pointer;
+
+  background: rgba(255, 255, 255, 0.05);
+  transition: 0.2s;
+}
+
+.pv-back:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(-2px);
+}
+
+/* VIEW INSTANCE NAVIGATION & SCROLL SLIDER */
+
+.pv-nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.pv-nav-arrow:hover {
+  background: #00c2a8;
+  border-color: #00c2a8;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.pv-nav-arrow.left {
+  left: 20px;
+}
+
+.pv-nav-arrow.right {
+  right: 20px;
+}
+
+.pv-instance-slider {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 20px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 10;
+  backdrop-filter: blur(12px);
+  width: 85%;
+  max-width: 420px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+}
+
+.pv-slider-input {
+  flex: 1;
+  accent-color: #00c2a8;
+  cursor: pointer;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.pv-slider-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #00ffcc;
+  white-space: nowrap;
+}
+
+/* LOADING & ERROR STATES */
+
+.pv-loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.pv-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(0, 194, 168, 0.1);
+  border-top-color: #00c2a8;
+  border-radius: 50%;
+  animation: pv-spin 1s linear infinite;
+}
+
+@keyframes pv-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.pv-access-error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  padding: 14px 18px;
+  border-radius: 16px;
+  font-size: 14px;
+  margin-bottom: 24px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ================= PRINT STYLES (PDF EXPORT) ================= */
+@media print {
+  body,
+  .pv-page {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-family: "Inter", sans-serif !important;
+    min-height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Hide web-only UI elements */
+  .pv-header,
+  .pv-back,
+  .pv-mobile-toggle,
+  .pv-nav-arrow,
+  .pv-instance-slider,
+  .pv-series-section,
+  .pv-download-button,
+  .pv-avatar,
+  .pv-status {
+    display: none !important;
+  }
+
+  /* Change flex/columns to block flow layout */
+  .pv-layout {
+    display: block !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+  }
+
+  /* Add official hospital/clinic letterhead at the top of printout */
+  .pv-layout::before {
+    content: "VISMED MEDICAL IMAGING CENTER\nLAPORAN PEMERIKSAAN RADIOLOGI & AI";
+    display: block !important;
+    text-align: center !important;
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+    white-space: pre-wrap !important;
+    border-bottom: 3px double #000000 !important;
+    padding-bottom: 10px !important;
+    margin-bottom: 20px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  .pv-sidebar {
+    width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
+  .pv-main-content {
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 20px 0 0 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Format Patient Card */
+  .pv-patient-card {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    text-align: left !important;
+    margin-bottom: 16px !important;
+    border-radius: 0 !important;
+  }
+
+  .pv-patient-card h2 {
+    font-size: 22px !important;
+    color: #000000 !important;
+    margin: 0 0 4px 0 !important;
+    font-weight: 700 !important;
+  }
+
+  .pv-patient-card p {
+    color: #374151 !important;
+    font-size: 13px !important;
+    margin: 0 !important;
+  }
+
+  /* Format Study Information into a clean table-like grid */
+  .pv-study-info {
+    border: 1px solid #d1d5db !important;
+    background: transparent !important;
+    border-radius: 8px !important;
+    padding: 14px !important;
+    margin-top: 0 !important;
+    margin-bottom: 20px !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    page-break-inside: avoid !important;
+  }
+
+  .pv-study-info h3 {
+    grid-column: span 2;
+    margin: 0 0 6px 0 !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    border-bottom: 1px solid #d1d5db !important;
+    padding-bottom: 4px !important;
+    color: #000000 !important;
+    text-transform: uppercase !important;
+  }
+
+  .pv-info-row {
+    margin: 0 !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  .pv-info-row span {
+    color: #4b5563 !important;
+    font-size: 11px !important;
+    display: block !important;
+    font-weight: 500 !important;
+  }
+
+  .pv-info-row p {
+    margin: 2px 0 0 0 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #000000 !important;
+  }
+
+  /* Image Viewer container and active slice */
+  .pv-viewer-container {
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+    padding: 12px !important;
+    margin: 0 0 20px 0 !important;
+    page-break-inside: avoid !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    min-height: auto !important;
+  }
+
+  .pv-main-image {
+    max-height: 40vh !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    margin: 0 auto !important;
+    border-radius: 4px !important;
+  }
+
+  .pv-overlay {
+    position: relative !important;
+    background: transparent !important;
+    border-top: 1px solid #e5e7eb !important;
+    margin-top: 10px !important;
+    padding: 8px 0 0 0 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    color: #374151 !important;
+  }
+
+  .pv-overlay p {
+    color: #374151 !important;
+    font-size: 11px !important;
+  }
+
+  /* Medical Findings Report */
+  .pv-report-box {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin-top: 20px !important;
+    min-height: auto !important;
+  }
+
+  .pv-report-header {
+    border-bottom: 2px solid #000000 !important;
+    padding-bottom: 4px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .pv-report-header h3 {
+    font-size: 15px !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+  }
+
+  .pv-report-content {
+    max-height: none !important;
+    overflow: visible !important;
+    gap: 16px !important;
+    padding: 0 !important;
+  }
+
+  .pv-report-section {
+    padding-bottom: 10px !important;
+    border-bottom: 1px dashed #d1d5db !important;
+    margin-bottom: 10px !important;
+    page-break-inside: avoid !important;
+  }
+
+  .pv-report-section:last-child {
+    border-bottom: none !important;
+  }
+
+  .pv-report-section h4 {
+    color: #000000 !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    margin: 0 0 4px 0 !important;
+    text-transform: uppercase !important;
+  }
+
+  .pv-report-section p,
+  .pv-report-section li {
+    color: #111827 !important;
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+  }
+
+  .pv-report-doctor {
+    display: flex !important;
+    justify-content: space-between !important;
+    margin-top: 20px !important;
+    border-top: 1px solid #d1d5db !important;
+    padding-top: 10px !important;
+    page-break-inside: avoid !important;
+  }
+}

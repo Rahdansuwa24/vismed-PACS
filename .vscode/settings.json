@@ -1,8 +1,10 @@
 {
-    "chatgpt.openOnStartup": false,
-    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
-    "python.analysis.extraPaths": [
-        "${workspaceFolder}/.venv/Lib/site-packages",
-        "${workspaceFolder}/brain-stroke-segmentation"
-    ]
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/git/objects/**": true,
+    "**/*.mp4": true
+  },
+  "search.exclude": {
+    "**/node_modules": true
+  }
 }

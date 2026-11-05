@@ -1,0 +1,1485 @@
+:root {
+  color-scheme: light;
+  --app-bg: #f4f7fb;
+  --surface: #ffffff;
+  --surface-muted: #f1f5f9;
+  --surface-hover: #e8f0f6;
+  --text-primary: #172b3a;
+  --text-secondary: #526575;
+  --text-muted: #718292;
+  --border: #dce5eb;
+  --accent: #008f7c;
+  --shadow: 0 12px 32px rgba(28, 54, 71, 0.09);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --app-bg: #08111f;
+  --surface: #111827;
+  --surface-muted: #172033;
+  --surface-hover: #1e293b;
+  --text-primary: #e5e7eb;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border: #293548;
+  --accent: #00c2a8;
+  --shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+
+html[data-theme="light"] body {
+  background: var(--app-bg);
+  color: var(--text-primary);
+}
+
+.theme-toggle {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 10050;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.theme-toggle:hover {
+  background: var(--surface-hover);
+  transform: translateY(-1px);
+}
+
+.theme-toggle:focus-visible {
+  outline: 3px solid rgba(0, 143, 124, 0.28);
+  outline-offset: 2px;
+}
+
+/* Dashboard */
+html[data-theme="light"] .vismedX_container,
+html[data-theme="light"] .vhx-container,
+html[data-theme="light"] .ecgF_container {
+  background: var(--app-bg);
+  color: var(--text-primary);
+}
+
+html[data-theme="light"] .vismedX_navbar,
+html[data-theme="light"] .vismedX_card,
+html[data-theme="light"] .vismedX_statCard,
+html[data-theme="light"] .vhx-header,
+html[data-theme="light"] .vhx-card,
+html[data-theme="light"] .vhx-modal,
+html[data-theme="light"] .ecgF_header,
+html[data-theme="light"] .ecgF_card,
+html[data-theme="light"] .ecgF_tableWrapper {
+  background: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+
+html[data-theme="light"] .vismedX_badge,
+html[data-theme="light"] .vismedX_iconBox,
+html[data-theme="light"] .vismedX_tag,
+html[data-theme="light"] .vhx-item,
+html[data-theme="light"] .vhx-filter-box,
+html[data-theme="light"] .ecgF_statItem,
+html[data-theme="light"] .ecgF_infoItem {
+  background: var(--surface-muted);
+  border-color: var(--border);
+}
+
+html[data-theme="light"] .vismedX_badge {
+  box-shadow: 0 2px 8px rgba(28, 54, 71, 0.06);
+}
+
+html[data-theme="light"] .vismedX_hero h1,
+html[data-theme="light"] .vismedX_title,
+html[data-theme="light"] .vismedX_logoBox p,
+html[data-theme="light"] .ecgF_title,
+html[data-theme="light"] .vhx-title,
+html[data-theme="light"] .vhx-item-name,
+html[data-theme="light"] .vhx-modal-title {
+  color: var(--text-primary);
+}
+
+html[data-theme="light"] .vismedX_desc,
+html[data-theme="light"] .vismedX_sub,
+html[data-theme="light"] .vismedX_footer,
+html[data-theme="light"] .ecgF_subtitle,
+html[data-theme="light"] .ecgF_infoLabel,
+html[data-theme="light"] .vhx-subtitle,
+html[data-theme="light"] .vhx-item-meta,
+html[data-theme="light"] .vhx-item-desc {
+  color: var(--text-secondary);
+}
+
+/* Video conversion and MWL simulation */
+html[data-theme="light"] .misv-header,
+html[data-theme="light"] .misv-sidebar,
+html[data-theme="light"] .misv-footer,
+html[data-theme="light"] .sim-header,
+html[data-theme="light"] .genesysris-leftbar,
+html[data-theme="light"] .genesysris-header,
+html[data-theme="light"] .genesysris-rightbar {
+  background: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+html[data-theme="light"] .misv-patient-card,
+html[data-theme="light"] .sim-form,
+html[data-theme="light"] .sim-status,
+html[data-theme="light"] .genesysris-table-wrapper,
+html[data-theme="light"] .genesysris-modal,
+html[data-theme="light"] .genesysris-panel {
+  background: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+
+html[data-theme="light"] .sim-page,
+html[data-theme="light"] .genesysris-page {
+  background: var(--app-bg);
+  color: var(--text-primary);
+}
+
+html[data-theme="light"] .misv-title,
+html[data-theme="light"] .misv-card-title,
+html[data-theme="light"] .misv-info-row,
+html[data-theme="light"] .sim-title,
+html[data-theme="light"] .sim-field span,
+html[data-theme="light"] .genesysris-header-title,
+html[data-theme="light"] .genesysris-table td,
+html[data-theme="light"] .genesysris-profile h4,
+html[data-theme="light"] .genesysris-brand-content span {
+  color: var(--text-primary);
+}
+
+html[data-theme="light"] .misv-subtitle,
+html[data-theme="light"] .misv-section-label,
+html[data-theme="light"] .misv-info-row span,
+html[data-theme="light"] .sim-subtitle,
+html[data-theme="light"] .sim-status p,
+html[data-theme="light"] .genesysris-profile span,
+html[data-theme="light"] .genesysris-table thead th {
+  color: var(--text-secondary);
+}
+
+html[data-theme="light"] .misv-patient-select,
+html[data-theme="light"] .sim-field input,
+html[data-theme="light"] .sim-field select,
+html[data-theme="light"] .vhx-select,
+html[data-theme="light"] .genesysris-page input,
+html[data-theme="light"] .genesysris-page select,
+html[data-theme="light"] .genesysris-page textarea {
+  background: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+html[data-theme="light"] .misv-back,
+html[data-theme="light"] .chatx-back,
+html[data-theme="light"] .vhx-back,
+html[data-theme="light"] .dv-back,
+html[data-theme="light"] .dw-back,
+html[data-theme="light"] .pv-back,
+html[data-theme="light"] .sim-icon-button,
+html[data-theme="light"] .ecgF_backBtn,
+html[data-theme="light"] .genesysris-back-btn {
+  background: #e8eef2;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 1px 3px rgba(28, 54, 71, 0.08);
+}
+
+html[data-theme="light"] .misv-back:hover,
+html[data-theme="light"] .chatx-back:hover,
+html[data-theme="light"] .vhx-back:hover,
+html[data-theme="light"] .dv-back:hover,
+html[data-theme="light"] .dw-back:hover,
+html[data-theme="light"] .pv-back:hover,
+html[data-theme="light"] .sim-icon-button:hover,
+html[data-theme="light"] .ecgF_backBtn:hover,
+html[data-theme="light"] .genesysris-back-btn:hover {
+  background: #d7efea;
+  color: #006e61;
+  border-color: #7fc8bb;
+  box-shadow: 0 3px 9px rgba(0, 143, 124, 0.14);
+}
+
+html[data-theme="light"] .genesysris-menu-item,
+html[data-theme="light"] .genesysris-table tbody tr:nth-child(odd),
+html[data-theme="light"] .genesysris-table tbody tr:nth-child(even) {
+  color: var(--text-secondary);
+  background: var(--surface);
+}
+
+html[data-theme="light"] .genesysris-menu-item:hover,
+html[data-theme="light"] .genesysris-table tbody tr:hover {
+  background: var(--surface-muted);
+}
+
+html[data-theme="light"] .genesysris-table thead th,
+html[data-theme="light"] .genesysris-table td,
+html[data-theme="light"] .genesysris-brand {
+  border-color: var(--border);
+}
+
+/* Worklists */
+html[data-theme="light"] .dw-page,
+html[data-theme="light"] .pv-page {
+  background: var(--app-bg);
+  color: var(--text-primary);
+}
+
+html[data-theme="light"] .dw-top-header,
+html[data-theme="light"] .dw-left-panel,
+html[data-theme="light"] .dw-right-panel,
+html[data-theme="light"] .pv-header,
+html[data-theme="light"] .pv-sidebar,
+html[data-theme="light"] .pv-main-content {
+  background: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+html[data-theme="light"] .dw-study-card,
+html[data-theme="light"] .dw-meta-card,
+html[data-theme="light"] .pv-patient-card,
+html[data-theme="light"] .pv-study-info,
+html[data-theme="light"] .pv-report-box,
+html[data-theme="light"] .pv-series-card {
+  background: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--border);
+  box-shadow: 0 5px 18px rgba(28, 54, 71, 0.06);
+}
+
+html[data-theme="light"] .dw-top-title,
+html[data-theme="light"] .dw-header h1,
+html[data-theme="light"] .dw-study-info h3,
+html[data-theme="light"] .dw-study-info h4,
+html[data-theme="light"] .pv-brand-text h2,
+html[data-theme="light"] .pv-study-info h3,
+html[data-theme="light"] .pv-report-box h3,
+html[data-theme="light"] .pv-series-card h4 {
+  color: var(--text-primary);
+}
+
+html[data-theme="light"] .dw-top-subtitle,
+html[data-theme="light"] .dw-study-info span,
+html[data-theme="light"] .pv-brand-text p,
+html[data-theme="light"] .pv-info-row span,
+html[data-theme="light"] .pv-patient-card p,
+html[data-theme="light"] .pv-series-content p,
+html[data-theme="light"] .pv-report-content,
+html[data-theme="light"] .pv-report-date,
+html[data-theme="light"] .pv-report-doctor {
+  color: var(--text-secondary);
+}
+
+html[data-theme="light"] .pv-series-content span {
+  color: var(--accent);
+}
+
+html[data-theme="light"] .pv-access-overlay {
+  background: rgba(226, 235, 241, 0.82);
+}
+
+html[data-theme="light"] .pv-access-modal {
+  background: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+
+html[data-theme="light"] .pv-access-input,
+html[data-theme="light"] .dw-select {
+  background: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+/* Keep diagnostic image canvases dark for image contrast. */
+html[data-theme="light"] .dv-page {
+  background: var(--app-bg);
+  color: var(--text-primary);
+}
+
+html[data-theme="light"] .dv-header,
+html[data-theme="light"] .dv-left-sidebar,
+html[data-theme="light"] .dv-right-sidebar {
+  background: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+html[data-theme="light"] .dv-series-card,
+html[data-theme="light"] .dv-info-box,
+html[data-theme="light"] .dv-measurement-box,
+html[data-theme="light"] .dv-status-box {
+  background: var(--surface-muted);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+html[data-theme="light"] .dv-title,
+html[data-theme="light"] .dv-series-info h3,
+html[data-theme="light"] .dv-meta-title,
+html[data-theme="light"] .dv-info-box p,
+html[data-theme="light"] .dv-measurement-box h3 {
+  color: var(--text-primary);
+}
+
+html[data-theme="light"] .dv-subtitle,
+html[data-theme="light"] .dv-series-info p,
+html[data-theme="light"] .dv-sidebar-title,
+html[data-theme="light"] .dv-info-box span {
+  color: var(--text-secondary);
+}
+
+html[data-theme="light"] .ecgF_infoValue,
+html[data-theme="light"] .ecgF_statLabel,
+html[data-theme="light"] .ecgF_logLine,
+html[data-theme="light"] .ecgF_cardTitle {
+  color: var(--text-primary);
+}
+
+html[data-theme="light"] .ecgF_terminal {
+  background: linear-gradient(145deg, #ffffff, #f3f7fa);
+  color: #1e293b;
+  border-color: #d7e3ea;
+  box-shadow:
+    inset 0 1px 3px rgba(28, 54, 71, 0.04),
+    0 5px 16px rgba(28, 54, 71, 0.05);
+  scrollbar-color: #b7cad5 transparent;
+  scrollbar-width: thin;
+}
+
+html[data-theme="light"] .ecgF_terminal::-webkit-scrollbar,
+html[data-theme="light"] .ecgF_detailLog::-webkit-scrollbar {
+  width: 8px;
+}
+
+html[data-theme="light"] .ecgF_terminal::-webkit-scrollbar-track,
+html[data-theme="light"] .ecgF_detailLog::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 8px 0;
+}
+
+html[data-theme="light"] .ecgF_terminal::-webkit-scrollbar-thumb,
+html[data-theme="light"] .ecgF_detailLog::-webkit-scrollbar-thumb {
+  background: #b7cad5;
+  border: 2px solid #f5f8fa;
+  border-radius: 999px;
+}
+
+html[data-theme="light"] .ecgF_terminal::-webkit-scrollbar-thumb:hover,
+html[data-theme="light"] .ecgF_detailLog::-webkit-scrollbar-thumb:hover {
+  background: #829eae;
+}
+
+html[data-theme="light"] .ecgF_terminal .ecgF_logLine.success {
+  color: #15803d;
+}
+
+html[data-theme="light"] .ecgF_terminal .ecgF_logLine.error {
+  color: #b91c1c;
+}
+
+html[data-theme="light"] .ecgF_terminal .ecgF_logLine.warning {
+  color: #a16207;
+}
+
+html[data-theme="light"] .ecgF_terminal .ecgF_logLine.info {
+  color: #1d4ed8;
+}
+
+html[data-theme="light"] .ecgF_terminal .ecgF_logLine.process {
+  color: #1d4ed8;
+}
+
+html[data-theme="light"] .ecgF_detailLog {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 350px;
+  margin-top: 15px;
+  padding: 15px;
+  overflow-y: auto;
+  border: 1px solid #d7e3ea;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #ffffff, #f3f7fa);
+  box-shadow:
+    inset 0 1px 3px rgba(28, 54, 71, 0.04),
+    0 5px 16px rgba(28, 54, 71, 0.05);
+  color: #334155;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  scrollbar-color: #b7cad5 transparent;
+  scrollbar-width: thin;
+}
+
+html[data-theme="light"] .ecgF_detailLogLine {
+  padding: 9px 11px;
+  border: 1px solid #e5edf2;
+  border-left: 3px solid #94a3b8;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.82);
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+html[data-theme="light"] .ecgF_detailLogTimestamp {
+  color: #64748b;
+}
+
+html[data-theme="light"] .ecgF_detailLogLine.success {
+  color: #15803d;
+  border-left-color: #22a05a;
+  background: #f0faf3;
+}
+
+html[data-theme="light"] .ecgF_detailLogLine.error {
+  color: #b91c1c;
+  border-left-color: #dc4545;
+  background: #fff5f4;
+}
+
+html[data-theme="light"] .ecgF_detailLogLine.warning {
+  color: #a16207;
+  border-left-color: #e0a326;
+  background: #fffbeb;
+}
+
+html[data-theme="light"] .ecgF_detailLogLine.info {
+  color: #1d4ed8;
+  border-left-color: #3974e8;
+  background: #f2f6ff;
+}
+
+html[data-theme="light"] .ecgF_detailLogLine.process {
+  color: #1d4ed8;
+  border-left-color: #3974e8;
+  background: #f2f6ff;
+}
+
+html[data-theme="light"] .ecgF_modalTitle {
+  color: #172b3a;
+  overflow-wrap: anywhere;
+}
+
+html[data-theme="light"] .ecgF_table th {
+  background: #edf3f6;
+  color: #526575;
+  border-color: var(--border);
+}
+
+html[data-theme="light"] .ecgF_table td {
+  color: #334155;
+  border-color: #e5edf2;
+}
+
+html[data-theme="light"] .ecgF_table tr:hover td {
+  background: #f4f8fa;
+  color: #172b3a;
+}
+
+html[data-theme="light"] .ecgF_detailBtn {
+  background: #e8f4f1;
+  border-color: #c3ded8;
+  color: #00796b;
+}
+
+html[data-theme="light"] .ecgF_detailBtn:hover {
+  background: #d7efea;
+  border-color: #7fc8bb;
+}
+
+html[data-theme="light"] .misv-nav-btn,
+html[data-theme="light"] .misv-upload-btn {
+  background: #e8f4f1;
+  color: #17685e;
+  border: 1px solid #c3ded8;
+}
+
+html[data-theme="light"] .misv-nav-btn:hover,
+html[data-theme="light"] .misv-upload-btn:hover {
+  background: #d7efea;
+  color: #075e53;
+  border-color: #7fc8bb;
+}
+
+@media (max-width: 600px) {
+  .theme-toggle {
+    right: 12px;
+    bottom: 12px;
+    min-height: 38px;
+    padding: 0 11px;
+  }
+}
+
+/* Light theme depth and color for non-chat pages */
+html[data-theme="light"] .vismedX_container,
+html[data-theme="light"] .vhx-container,
+html[data-theme="light"] .sim-page,
+html[data-theme="light"] .genesysris-page,
+html[data-theme="light"] .ecgF_container,
+html[data-theme="light"] .dw-page,
+html[data-theme="light"] .pv-page,
+html[data-theme="light"] .dv-page {
+  background:
+    radial-gradient(
+      ellipse at 8% 0%,
+      rgba(70, 176, 177, 0.12),
+      transparent 32rem
+    ),
+    radial-gradient(
+      ellipse at 95% 12%,
+      rgba(111, 164, 219, 0.12),
+      transparent 35rem
+    ),
+    #edf3f7;
+}
+
+/* Dashboard */
+html[data-theme="light"] .vismedX_navbar {
+  background: linear-gradient(110deg, #ffffff 0%, #eef8f6 58%, #edf4fb 100%);
+  border-color: #d5e5e8;
+  box-shadow: 0 12px 26px rgba(35, 82, 97, 0.08);
+}
+
+html[data-theme="light"] .vismedX_hero {
+  position: relative;
+  overflow: hidden;
+  padding: 28px 20px 30px;
+  border: 1px solid rgba(178, 208, 216, 0.55);
+  border-radius: 24px;
+  background: linear-gradient(
+    115deg,
+    rgba(226, 244, 241, 0.92),
+    rgba(238, 244, 252, 0.94)
+  );
+  box-shadow: 0 12px 28px rgba(35, 82, 97, 0.06);
+}
+
+html[data-theme="light"] .vismedX_hero::before {
+  content: "";
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  top: -155px;
+  right: 8%;
+  border-radius: 50%;
+  background: rgba(70, 176, 177, 0.12);
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+html[data-theme="light"] .vismedX_hero h1,
+html[data-theme="light"] .vismedX_hero p,
+html[data-theme="light"] .vismedX_badge {
+  position: relative;
+  z-index: 1;
+}
+
+html[data-theme="light"] .vismedX_badge {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: #c7e3dd;
+  color: #14786c;
+}
+
+html[data-theme="light"] .vismedX_card {
+  background: linear-gradient(155deg, #ffffff 12%, #f5f9fb 100%);
+  border-color: #d9e5eb;
+  box-shadow: 0 10px 26px rgba(35, 68, 86, 0.07);
+}
+
+html[data-theme="light"] .vismedX_card:nth-child(4n + 1) {
+  border-top: 3px solid #49aa9b;
+}
+html[data-theme="light"] .vismedX_card:nth-child(4n + 2) {
+  border-top: 3px solid #679bc9;
+}
+html[data-theme="light"] .vismedX_card:nth-child(4n + 3) {
+  border-top: 3px solid #8c84c6;
+}
+html[data-theme="light"] .vismedX_card:nth-child(4n + 4) {
+  border-top: 3px solid #d29b62;
+}
+
+html[data-theme="light"] .vismedX_card:hover {
+  box-shadow: 0 16px 34px rgba(35, 68, 86, 0.13);
+}
+
+html[data-theme="light"] .vismedX_iconBox {
+  background: linear-gradient(145deg, #e1f3ef, #e6f0fa);
+}
+
+html[data-theme="light"] .vismedX_card:hover .vismedX_iconBox {
+  background: linear-gradient(135deg, #00a991, #087f84);
+}
+
+/* Page headers and input surfaces */
+html[data-theme="light"] .vhx-header,
+html[data-theme="light"] .sim-header,
+html[data-theme="light"] .misv-header,
+html[data-theme="light"] .pv-header,
+html[data-theme="light"] .dw-top-header,
+html[data-theme="light"] .dv-header,
+html[data-theme="light"] .ecgF_header {
+  background: linear-gradient(105deg, #ffffff 0%, #edf7f6 100%);
+  border-color: #d5e4e9;
+  box-shadow: 0 8px 22px rgba(35, 68, 86, 0.07);
+}
+
+html[data-theme="light"] .sim-content {
+  align-items: flex-start;
+  padding-top: 34px;
+}
+
+html[data-theme="light"] .sim-form {
+  border: 1px solid #d5e4eb;
+  border-top: 4px solid #48a99b;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #ffffff 20%, #f3f8fb);
+  box-shadow: 0 18px 42px rgba(35, 68, 86, 0.1);
+}
+
+html[data-theme="light"] .sim-status-success {
+  background: linear-gradient(120deg, #e9f8f0, #f7fcf8);
+}
+
+html[data-theme="light"] .sim-status-error {
+  background: linear-gradient(120deg, #fff0ef, #fffafa);
+}
+
+html[data-theme="light"] .vhx-card {
+  background: linear-gradient(150deg, #ffffff, #f2f7fa);
+  border-color: #d5e4eb;
+}
+
+html[data-theme="light"] .vhx-filter-box {
+  background: linear-gradient(110deg, #e8f4f2, #edf3fb);
+}
+
+html[data-theme="light"] .vhx-item {
+  background: linear-gradient(110deg, #ffffff, #f7fafc);
+  border-color: #e0e9ee;
+}
+
+html[data-theme="light"] .vhx-item:hover {
+  background: #eef8f6;
+  box-shadow: 0 8px 18px rgba(35, 82, 97, 0.08);
+}
+
+/* Video conversion workbench */
+html[data-theme="light"] .misv-header,
+html[data-theme="light"] .misv-footer {
+  background: linear-gradient(105deg, #ffffff, #eaf5f4);
+  border-color: #d6e6e8;
+}
+
+html[data-theme="light"] .misv-sidebar {
+  background: linear-gradient(180deg, #eaf4f4, #eff4fa);
+  border-color: #d5e3e8;
+}
+
+html[data-theme="light"] .misv-patient-card {
+  background: linear-gradient(145deg, #ffffff, #f4f9fa);
+  border: 1px solid #d6e5e8;
+  border-radius: 18px;
+  box-shadow: 0 10px 26px rgba(35, 82, 97, 0.08);
+}
+
+html[data-theme="light"] .misv-modality {
+  background: #e4f3ef;
+  color: #087d70;
+}
+
+html[data-theme="light"] .misv-footer {
+  box-shadow: 0 -8px 22px rgba(35, 68, 86, 0.05);
+}
+
+/* Worklist layout: a tinted navigation rail and colored data surfaces */
+html[data-theme="light"] .genesysris-leftbar {
+  background: linear-gradient(180deg, #e3f0f1 0%, #e9f0f7 100%);
+  border-color: #cfdee4;
+}
+
+html[data-theme="light"] .genesysris-brand {
+  background: rgba(255, 255, 255, 0.58);
+  border-color: #cfdee4;
+}
+
+html[data-theme="light"] .genesysris-brand-content h2,
+html[data-theme="light"] .genesysris-brand-content span,
+html[data-theme="light"] .genesysris-profile h4 {
+  color: #244452;
+}
+
+html[data-theme="light"] .genesysris-avatar {
+  color: #087d70;
+  background: linear-gradient(145deg, #d0ebe5, #dceaf6);
+  box-shadow: inset 0 0 0 1px rgba(62, 135, 142, 0.12);
+}
+
+html[data-theme="light"] .genesysris-menu-item {
+  border: 1px solid transparent;
+  color: #526b7a;
+}
+
+html[data-theme="light"] .genesysris-menu-item.active {
+  background: linear-gradient(100deg, #d4ebe7, #e0edf6);
+  border-color: #c5dfdc;
+  color: #087d70;
+}
+
+html[data-theme="light"] .genesysris-header {
+  background: linear-gradient(100deg, #ffffff, #edf6f7 65%, #eef3fa);
+  border: 1px solid #d6e4e9;
+  box-shadow: 0 10px 24px rgba(35, 68, 86, 0.08);
+}
+
+html[data-theme="light"] .genesysris-table-wrapper {
+  overflow: auto;
+  border: 1px solid #d6e4e9;
+  background: #ffffff;
+}
+
+html[data-theme="light"] .genesysris-table thead th {
+  background: #e7f1f4;
+  color: #3d5968;
+}
+
+html[data-theme="light"] .genesysris-table tbody tr:nth-child(even) {
+  background: #f2f7f9;
+}
+
+/* ECG monitor */
+html[data-theme="light"] .ecgF_card {
+  background: linear-gradient(145deg, #ffffff 20%, #f2f8fa);
+  border-color: #d6e4e9;
+  box-shadow: 0 12px 28px rgba(35, 68, 86, 0.075);
+}
+
+html[data-theme="light"] .ecgF_cardTitle {
+  padding-bottom: 12px;
+  border-color: #dce8ed;
+}
+
+html[data-theme="light"] .ecgF_infoValue,
+html[data-theme="light"] .ecgF_statItem {
+  background: linear-gradient(135deg, #eaf4f6, #f4f8fb);
+  border-color: #dce8ed;
+}
+
+html[data-theme="light"] .ecgF_statItem.success {
+  background: linear-gradient(135deg, #e6f6ed, #f1faf4);
+}
+
+html[data-theme="light"] .ecgF_statItem.error {
+  background: linear-gradient(135deg, #fff0ef, #fff8f7);
+}
+
+html[data-theme="light"] .ecgF_statItem.total {
+  background: linear-gradient(135deg, #eaf1ff, #f5f8ff);
+}
+
+/* Patient and DICOM workspaces */
+html[data-theme="light"] .pv-header,
+html[data-theme="light"] .pv-sidebar {
+  background: linear-gradient(125deg, #eaf4f4, #edf3fa);
+}
+
+html[data-theme="light"] .pv-sidebar {
+  border-right: 1px solid #d2e0e6;
+}
+
+html[data-theme="light"] .pv-patient-card,
+html[data-theme="light"] .pv-study-info,
+html[data-theme="light"] .pv-report-box,
+html[data-theme="light"] .pv-series-card {
+  background: linear-gradient(150deg, #ffffff, #f3f8fa);
+  border-color: #d8e5ea;
+  box-shadow: 0 10px 24px rgba(35, 68, 86, 0.07);
+}
+
+html[data-theme="light"] .pv-avatar {
+  background: linear-gradient(145deg, #d4eee8, #e0edf8);
+  color: #087d70;
+}
+
+html[data-theme="light"] .pv-report-header {
+  background: #edf6f6;
+}
+
+html[data-theme="light"] .dw-top-header,
+html[data-theme="light"] .dw-left-panel,
+html[data-theme="light"] .dw-right-panel,
+html[data-theme="light"] .dv-header,
+html[data-theme="light"] .dv-left-sidebar,
+html[data-theme="light"] .dv-right-sidebar {
+  background: linear-gradient(145deg, #f9fcfd, #eaf3f6);
+}
+
+html[data-theme="light"] .dw-study-card,
+html[data-theme="light"] .dw-meta-card,
+html[data-theme="light"] .dv-series-card,
+html[data-theme="light"] .dv-info-box,
+html[data-theme="light"] .dv-measurement-box,
+html[data-theme="light"] .dv-status-box {
+  background: linear-gradient(145deg, #ffffff, #f1f7f9);
+  border-color: #d7e5ea;
+}
+
+html[data-theme="light"] .dw-active-card,
+html[data-theme="light"] .dv-series-active {
+  background: linear-gradient(120deg, #e4f4f0, #edf5fb);
+  border-color: #67b9ac;
+  box-shadow: 0 8px 20px rgba(26, 132, 119, 0.12);
+}
+
+html[data-theme="light"] .dw-preview-header,
+html[data-theme="light"] .dw-preview-info {
+  background: linear-gradient(120deg, #eaf4f4, #edf3fa);
+}
+
+html[data-theme="light"] .dw-status,
+html[data-theme="light"] .dw-images-count,
+html[data-theme="light"] .dv-series-count {
+  background: #e0f1ed;
+  color: #087d70;
+}
+
+/* Keep diagnostic image viewports dark while styling surrounding chrome. */
+html[data-theme="light"] .misv-viewer,
+html[data-theme="light"] .dv-main-viewer,
+html[data-theme="light"] .pv-viewer-container {
+  background: #102033;
+  border-color: #294258;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.035),
+    0 12px 28px rgba(20, 43, 61, 0.12);
+}
+
+/* Convert page action bar: keep actions grouped and clear of the theme switch. */
+html[data-theme="light"] .misv-footer {
+  position: relative;
+  z-index: 2;
+  height: auto;
+  min-height: 74px;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px clamp(16px, 3vw, 32px);
+  border-top: 1px solid #d0e1e5;
+  background: linear-gradient(105deg, #ffffff 0%, #eaf5f4 55%, #edf3fa 100%);
+  box-shadow: 0 -8px 22px rgba(35, 68, 86, 0.07);
+}
+
+body:has(.misv-header) .theme-toggle {
+  top: 14px;
+  right: 22px;
+  bottom: auto;
+  z-index: 10050;
+  box-shadow: 0 5px 14px rgba(35, 68, 86, 0.12);
+}
+
+html[data-theme="light"] .misv-viewer-controls {
+  gap: 7px;
+  padding: 5px;
+  border: 1px solid #d3e5e6;
+  border-radius: 15px;
+  background: linear-gradient(120deg, #e7f3f1, #edf3f9);
+}
+
+html[data-theme="light"] .misv-nav-btn {
+  min-height: 38px;
+  padding: 7px 15px;
+  border-radius: 11px;
+  background: #ffffff;
+  color: #245467;
+  border-color: #cbdde4;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(35, 68, 86, 0.05);
+}
+
+html[data-theme="light"] .misv-nav-btn:hover {
+  background: #d8eeea;
+  color: #087568;
+  border-color: #83c4b8;
+  box-shadow: 0 4px 10px rgba(0, 143, 124, 0.12);
+}
+
+html[data-theme="light"] .misv-img-count {
+  min-width: 82px;
+  margin: 0 3px;
+  color: #486575;
+  font-weight: 600;
+  text-align: center;
+}
+
+html[data-theme="light"] .misv-upload-btn {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 17px;
+  border: 1px solid #c9d8eb;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #eef3ff, #e4edf9);
+  color: #375b86;
+  font-weight: 600;
+  box-shadow: 0 3px 9px rgba(51, 89, 132, 0.08);
+}
+
+html[data-theme="light"] .misv-upload-btn:hover {
+  background: linear-gradient(135deg, #e1ebfa, #dbe9f5);
+  color: #284e7c;
+  border-color: #a9c1dc;
+  box-shadow: 0 5px 13px rgba(51, 89, 132, 0.14);
+}
+
+html[data-theme="light"] .misv-save-btn {
+  min-height: 44px;
+  padding: 10px 19px;
+  border: 1px solid #078775;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0b9e8a, #087b78);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 5px 13px rgba(0, 128, 115, 0.2);
+}
+
+html[data-theme="light"] .misv-save-btn:hover {
+  background: linear-gradient(135deg, #078c7b, #066b6b);
+  box-shadow: 0 7px 16px rgba(0, 128, 115, 0.25);
+}
+
+@media (max-width: 760px) {
+  html[data-theme="light"] .misv-footer {
+    justify-content: center;
+    padding: 11px 14px;
+  }
+
+  html[data-theme="light"] .misv-viewer-controls {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  html[data-theme="light"] .misv-save-btn,
+  html[data-theme="light"] .misv-upload-btn {
+    flex: 1 1 auto;
+  }
+
+  body:has(.misv-header) .theme-toggle {
+    top: 10px;
+    right: 12px;
+    min-height: 38px;
+    padding: 0 11px;
+  }
+
+  html[data-theme="light"] .misv-header {
+    padding-right: 112px;
+  }
+}
+
+/* ECG live console: bounded viewport with its own scroll area */
+html[data-theme="light"] .ecgF_terminal {
+  flex: 0 1 auto;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 0;
+  height: clamp(300px, 42vh, 420px);
+  max-height: 420px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 10px 12px;
+  background: #f6f9fb;
+  border: 1px solid #d8e3e9;
+  border-top: 3px solid #45a99b;
+  border-radius: 12px;
+  color: #344b58;
+  box-shadow:
+    0 8px 22px rgba(38, 70, 86, 0.07),
+    inset 0 1px 0 #fff;
+  scrollbar-color: #a5bbc5 #edf2f5;
+  scrollbar-width: thin;
+}
+
+html[data-theme="light"] .ecgF_terminal::-webkit-scrollbar-track {
+  background: #edf2f5;
+  border-radius: 999px;
+}
+
+html[data-theme="light"] .ecgF_terminal::-webkit-scrollbar-thumb {
+  background: #a5bbc5;
+  border: 2px solid #edf2f5;
+}
+
+html[data-theme="light"] .ecgF_terminal::-webkit-scrollbar-thumb:hover {
+  background: #709d9c;
+}
+
+html[data-theme="light"] .ecgF_terminal .ecgF_logLine {
+  margin: 0;
+  padding: 8px 10px;
+  border: 0;
+  border-left: 2px solid transparent;
+  border-bottom: 1px solid #e2eaee;
+  border-radius: 0;
+  background: transparent;
+  color: #344e5d;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+html[data-theme="light"] .ecgF_terminal .ecgF_logLine.success {
+  border-left-color: #36a66b;
+  color: #176b42;
+}
+
+html[data-theme="light"] .ecgF_terminal .ecgF_logLine.error {
+  border-left-color: #dc5961;
+  color: #a42b35;
+}
+
+html[data-theme="light"] .ecgF_terminal .ecgF_logLine.warning {
+  border-left-color: #d9a53d;
+  color: #8f610c;
+}
+
+html[data-theme="light"] .ecgF_terminal .ecgF_logLine.info,
+html[data-theme="light"] .ecgF_terminal .ecgF_logLine.process {
+  border-left-color: #5b91d2;
+  color: #245d9c;
+}
+
+@media (min-width: 1025px) {
+  html[data-theme="light"] .ecgF_layoutGrid > .ecgF_card:last-child {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 1024px) {
+  html[data-theme="light"] .ecgF_terminal {
+    flex: 0 0 300px;
+    height: 300px;
+    min-height: 300px;
+    max-height: 300px;
+  }
+}
+
+/* Dark theme counterpart to the refined light page surfaces above. */
+:root[data-theme="dark"] {
+  --app-bg: #0b1420;
+  --surface: #111e2b;
+  --surface-muted: #172635;
+  --surface-hover: #203343;
+  --text-primary: #e6eef4;
+  --text-secondary: #b0c0cc;
+  --text-muted: #8ca0ae;
+  --border: #293d4c;
+  --accent: #46c4b0;
+  --shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+}
+
+html[data-theme="dark"] body {
+  background: var(--app-bg);
+  color: var(--text-primary);
+}
+
+html[data-theme="dark"] .theme-toggle {
+  background: linear-gradient(145deg, #192a38, #12212e);
+  border-color: #35505e;
+  color: #dce9ef;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
+}
+
+html[data-theme="dark"] .theme-toggle:hover {
+  background: #203746;
+}
+
+/* Shared dark page canvas */
+html[data-theme="dark"] .vismedX_container,
+html[data-theme="dark"] .vhx-container,
+html[data-theme="dark"] .sim-page,
+html[data-theme="dark"] .genesysris-page,
+html[data-theme="dark"] .ecgF_container,
+html[data-theme="dark"] .dw-page,
+html[data-theme="dark"] .pv-page,
+html[data-theme="dark"] .dv-page {
+  color: var(--text-primary);
+  background:
+    radial-gradient(
+      ellipse at 8% 0%,
+      rgba(29, 137, 133, 0.13),
+      transparent 34rem
+    ),
+    radial-gradient(
+      ellipse at 95% 12%,
+      rgba(75, 104, 166, 0.13),
+      transparent 36rem
+    ),
+    #0b1420;
+}
+
+/* Dashboard */
+html[data-theme="dark"] .vismedX_navbar,
+html[data-theme="dark"] .vhx-header,
+html[data-theme="dark"] .sim-header,
+html[data-theme="dark"] .misv-header,
+html[data-theme="dark"] .pv-header,
+html[data-theme="dark"] .dw-top-header,
+html[data-theme="dark"] .dv-header,
+html[data-theme="dark"] .ecgF_header,
+html[data-theme="dark"] .genesysris-header {
+  background: linear-gradient(105deg, #142430, #142631 62%, #192538);
+  border-color: #2c414f;
+  color: var(--text-primary);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.2);
+}
+
+html[data-theme="dark"] .vismedX_hero {
+  position: relative;
+  overflow: hidden;
+  padding: 28px 20px 30px;
+  border: 1px solid #34515c;
+  border-radius: 24px;
+  background: linear-gradient(115deg, #153137, #182b3a 62%, #22283b);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.2);
+}
+
+html[data-theme="dark"] .vismedX_hero::before {
+  content: "";
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  top: -155px;
+  right: 8%;
+  border-radius: 50%;
+  background: rgba(64, 190, 169, 0.13);
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+html[data-theme="dark"] .vismedX_hero h1,
+html[data-theme="dark"] .vismedX_hero p,
+html[data-theme="dark"] .vismedX_badge {
+  position: relative;
+  z-index: 1;
+}
+
+html[data-theme="dark"] .vismedX_hero h1,
+html[data-theme="dark"] .vismedX_title,
+html[data-theme="dark"] .vismedX_logoBox p,
+html[data-theme="dark"] .ecgF_title,
+html[data-theme="dark"] .vhx-title,
+html[data-theme="dark"] .vhx-item-name,
+html[data-theme="dark"] .vhx-modal-title,
+html[data-theme="dark"] .misv-title,
+html[data-theme="dark"] .misv-card-title,
+html[data-theme="dark"] .sim-title,
+html[data-theme="dark"] .genesysris-header-title,
+html[data-theme="dark"] .dw-top-title,
+html[data-theme="dark"] .pv-brand-text h2,
+html[data-theme="dark"] .dv-title {
+  color: var(--text-primary);
+}
+
+html[data-theme="dark"] .vismedX_desc,
+html[data-theme="dark"] .vismedX_sub,
+html[data-theme="dark"] .vismedX_footer,
+html[data-theme="dark"] .ecgF_subtitle,
+html[data-theme="dark"] .ecgF_infoLabel,
+html[data-theme="dark"] .vhx-subtitle,
+html[data-theme="dark"] .vhx-item-meta,
+html[data-theme="dark"] .vhx-item-desc,
+html[data-theme="dark"] .misv-subtitle,
+html[data-theme="dark"] .sim-subtitle,
+html[data-theme="dark"] .genesysris-profile span,
+html[data-theme="dark"] .dw-top-subtitle,
+html[data-theme="dark"] .pv-brand-text p {
+  color: var(--text-secondary);
+}
+
+html[data-theme="dark"] .vismedX_badge {
+  background: #193a3b;
+  border-color: #315c5b;
+  color: #83dfca;
+}
+
+html[data-theme="dark"] .vismedX_card,
+html[data-theme="dark"] .vismedX_statCard,
+html[data-theme="dark"] .vhx-card,
+html[data-theme="dark"] .vhx-modal,
+html[data-theme="dark"] .ecgF_card,
+html[data-theme="dark"] .ecgF_tableWrapper,
+html[data-theme="dark"] .sim-form,
+html[data-theme="dark"] .sim-status,
+html[data-theme="dark"] .misv-patient-card,
+html[data-theme="dark"] .genesysris-table-wrapper,
+html[data-theme="dark"] .genesysris-panel,
+html[data-theme="dark"] .genesysris-modal,
+html[data-theme="dark"] .pv-patient-card,
+html[data-theme="dark"] .pv-study-info,
+html[data-theme="dark"] .pv-report-box,
+html[data-theme="dark"] .pv-series-card,
+html[data-theme="dark"] .dw-study-card,
+html[data-theme="dark"] .dw-meta-card,
+html[data-theme="dark"] .dv-series-card,
+html[data-theme="dark"] .dv-info-box,
+html[data-theme="dark"] .dv-measurement-box,
+html[data-theme="dark"] .dv-status-box {
+  background: linear-gradient(145deg, #142430, #111e2b 75%, #172432);
+  border-color: #2b414f;
+  color: var(--text-primary);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+}
+
+html[data-theme="dark"] .vismedX_card:nth-child(4n + 1) {
+  border-top: 3px solid #42b9a5;
+}
+html[data-theme="dark"] .vismedX_card:nth-child(4n + 2) {
+  border-top: 3px solid #669fd0;
+}
+html[data-theme="dark"] .vismedX_card:nth-child(4n + 3) {
+  border-top: 3px solid #9589d0;
+}
+html[data-theme="dark"] .vismedX_card:nth-child(4n + 4) {
+  border-top: 3px solid #d6a56d;
+}
+
+html[data-theme="dark"] .vismedX_card:hover,
+html[data-theme="dark"] .vhx-item:hover {
+  border-color: #3e706f;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.3);
+}
+
+html[data-theme="dark"] .vismedX_iconBox,
+html[data-theme="dark"] .vhx-filter-box,
+html[data-theme="dark"] .vhx-item,
+html[data-theme="dark"] .ecgF_statItem,
+html[data-theme="dark"] .ecgF_infoItem,
+html[data-theme="dark"] .ecgF_infoValue {
+  background: linear-gradient(135deg, #1a303a, #192638);
+  border-color: #304855;
+  color: var(--text-primary);
+}
+
+/* Forms, conversion and modality workbench */
+html[data-theme="dark"] .misv-sidebar,
+html[data-theme="dark"] .misv-footer,
+html[data-theme="dark"] .sim-header,
+html[data-theme="dark"] .genesysris-leftbar,
+html[data-theme="dark"] .genesysris-rightbar,
+html[data-theme="dark"] .pv-sidebar,
+html[data-theme="dark"] .dw-left-panel,
+html[data-theme="dark"] .dw-right-panel,
+html[data-theme="dark"] .dv-left-sidebar,
+html[data-theme="dark"] .dv-right-sidebar {
+  background: linear-gradient(180deg, #142631, #121e2b 65%, #172338);
+  border-color: #2b414f;
+  color: var(--text-primary);
+}
+
+html[data-theme="dark"] .misv-patient-select,
+html[data-theme="dark"] .sim-field input,
+html[data-theme="dark"] .sim-field select,
+html[data-theme="dark"] .vhx-select,
+html[data-theme="dark"] .genesysris-page input,
+html[data-theme="dark"] .genesysris-page select,
+html[data-theme="dark"] .genesysris-page textarea,
+html[data-theme="dark"] .pv-access-input,
+html[data-theme="dark"] .dw-select {
+  background: #101d29;
+  border-color: #344b5a;
+  color: #e4edf2;
+}
+
+html[data-theme="dark"] .sim-form {
+  border-top: 4px solid #42b9a5;
+  border-radius: 20px;
+}
+
+html[data-theme="dark"] .sim-status-success {
+  background: linear-gradient(120deg, #17372f, #142a2a);
+}
+html[data-theme="dark"] .sim-status-error {
+  background: linear-gradient(120deg, #3b2428, #2c2029);
+}
+html[data-theme="dark"] .ecgF_statItem.success {
+  background: linear-gradient(135deg, #17372f, #1a302d);
+}
+html[data-theme="dark"] .ecgF_statItem.error {
+  background: linear-gradient(135deg, #3c2429, #30232a);
+}
+html[data-theme="dark"] .ecgF_statItem.total {
+  background: linear-gradient(135deg, #1c2d48, #20273d);
+}
+
+html[data-theme="dark"] .misv-modality,
+html[data-theme="dark"] .dw-status,
+html[data-theme="dark"] .dw-images-count,
+html[data-theme="dark"] .dv-series-count {
+  background: #193a3b;
+  color: #87dece;
+}
+
+/* Worklist and DICOM chrome */
+html[data-theme="dark"] .genesysris-brand,
+html[data-theme="dark"] .genesysris-table-wrapper {
+  background: #111e2b;
+  border-color: #2b414f;
+}
+
+html[data-theme="dark"] .genesysris-brand-content h2,
+html[data-theme="dark"] .genesysris-brand-content span,
+html[data-theme="dark"] .genesysris-profile h4,
+html[data-theme="dark"] .genesysris-table td,
+html[data-theme="dark"] .dw-study-info h3,
+html[data-theme="dark"] .dw-study-info h4,
+html[data-theme="dark"] .pv-study-info h3,
+html[data-theme="dark"] .pv-report-box h3,
+html[data-theme="dark"] .pv-series-card h4 {
+  color: var(--text-primary);
+}
+
+html[data-theme="dark"] .genesysris-avatar,
+html[data-theme="dark"] .pv-avatar {
+  background: linear-gradient(145deg, #1a4747, #203a54);
+  color: #85dfcf;
+}
+
+html[data-theme="dark"] .genesysris-menu-item {
+  color: #a5b7c4;
+}
+
+html[data-theme="dark"] .genesysris-menu-item.active {
+  background: linear-gradient(100deg, #1b4544, #20384a);
+  border-color: #315c5a;
+  color: #8ce1d1;
+}
+
+html[data-theme="dark"] .genesysris-table thead th,
+html[data-theme="dark"] .pv-report-header,
+html[data-theme="dark"] .dw-preview-header,
+html[data-theme="dark"] .dw-preview-info {
+  background: #1b2c3a;
+  color: #b7c8d2;
+}
+
+html[data-theme="dark"] .genesysris-table tbody tr:nth-child(even) {
+  background: #152431;
+}
+
+html[data-theme="dark"] .genesysris-table tbody tr:hover,
+html[data-theme="dark"] .genesysris-menu-item:hover {
+  background: #1a303b;
+}
+
+html[data-theme="dark"] .pv-access-overlay {
+  background: rgba(3, 9, 15, 0.76);
+}
+
+html[data-theme="dark"] .pv-access-modal {
+  background: linear-gradient(145deg, #182a38, #111e2b);
+  border-color: #34505d;
+  color: var(--text-primary);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+html[data-theme="dark"] .dw-active-card,
+html[data-theme="dark"] .dv-series-active {
+  background: linear-gradient(120deg, #173b37, #1a3040);
+  border-color: #3d877c;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
+}
+
+html[data-theme="dark"] .misv-viewer,
+html[data-theme="dark"] .dv-main-viewer,
+html[data-theme="dark"] .pv-viewer-container {
+  background: #08111c;
+  border-color: #263b4b;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.035),
+    0 14px 32px rgba(0, 0, 0, 0.28);
+}
+
+/* Keep ECG logs bounded in dark mode too; status colors remain distinct. */
+html[data-theme="dark"] .ecgF_terminal {
+  flex: 0 1 auto;
+  box-sizing: border-box;
+  width: 100%;
+  height: clamp(300px, 42vh, 420px);
+  min-height: 0;
+  max-height: 420px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 10px 12px;
+  border: 1px solid #2c4655;
+  border-top: 3px solid #42b9a5;
+  border-radius: 12px;
+  background: #0d1823;
+  color: #c5d4dd;
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  scrollbar-color: #456272 #14232f;
+  scrollbar-width: thin;
+}
+
+html[data-theme="dark"] .ecgF_terminal .ecgF_logLine {
+  margin: 0;
+  padding: 8px 10px;
+  border: 0;
+  border-left: 2px solid transparent;
+  border-bottom: 1px solid #1c303d;
+  border-radius: 0;
+  background: transparent;
+  color: #bdcbd4;
+  line-height: 1.55;
+}
+
+html[data-theme="dark"] .ecgF_terminal .ecgF_logLine.success {
+  border-left-color: #43c889;
+  color: #82dfae;
+}
+html[data-theme="dark"] .ecgF_terminal .ecgF_logLine.error {
+  border-left-color: #f07880;
+  color: #ff9da3;
+}
+html[data-theme="dark"] .ecgF_terminal .ecgF_logLine.warning {
+  border-left-color: #e6b552;
+  color: #f1cb78;
+}
+html[data-theme="dark"] .ecgF_terminal .ecgF_logLine.info,
+html[data-theme="dark"] .ecgF_terminal .ecgF_logLine.process {
+  border-left-color: #72a9ed;
+  color: #9cc4fa;
+}
+
+@media (max-width: 1024px) {
+  html[data-theme="dark"] .ecgF_terminal {
+    flex: 0 0 300px;
+    height: 300px;
+    min-height: 300px;
+    max-height: 300px;
+  }
+}

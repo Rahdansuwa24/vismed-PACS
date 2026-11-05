@@ -1,0 +1,164 @@
+import sys
+import os
+import json
+import struct
+import argparse
+ 
+import pydicom
+from pydicom.dataset  import FileDataset, FileMetaDataset
+from pydicom.uid      import UID
+from pydicom.encaps   import encapsulate_extended
+import pydicom.tag
+ 
+# ─────────────────────────────────────────────────────────────
+# KONSTANTA DICOM
+# ─────────────────────────────────────────────────────────────
+SOP_CLASS       = "1.2.840.10008.5.1.4.1.1.77.1.4.1"  # Video Photographic Image Storage
+TRANSFER_SYNTAX = "1.2.840.10008.1.2.4.102"            # MPEG-4 AVC/H.264 High Profile / Level 4.1
+ 
+ 
+def make_dicom(p: dict):
+    """
+    Membuat file .dcm dari MP4 H.264.
+    p = dict parameter dari JSON (dikirim oleh Express)
+    """
+ 
+    # ── Baca file MP4 ─────────────────────────────────────────
+    with open(p["mp4Path"], "rb") as f:
+        mp4_bytes = f.read()
+ 
+    # ── File Meta Information ─────────────────────────────────
+    file_meta = FileMetaDataset()
+    file_meta.MediaStorageSOPClassUID    = UID(SOP_CLASS)
+    file_meta.MediaStorageSOPInstanceUID = UID(p["sopUID"])
+    file_meta.TransferSyntaxUID          = UID(TRANSFER_SYNTAX)
+    file_meta.ImplementationClassUID     = UID("1.2.826.0.1.3680043.10.188.1")
+    file_meta.ImplementationVersionName  = "PYDICOM_VIDEO"     # SH max 16 chars
+ 
+    # ── Dataset ───────────────────────────────────────────────
+    ds = FileDataset(
+        p["dcmPath"], {},
+        file_meta=file_meta,
+        preamble=b"\x00" * 128
+    )
+    ds.is_implicit_VR   = False
+    ds.is_little_endian = True
+ 
+    # ── Patient ───────────────────────────────────────────────
+    ds.PatientName      = p.get("patientName", "ANONYMOUS")
+    ds.PatientID        = p.get("patientID", "UNKNOWN")
+    ds.PatientBirthDate = p.get("patientDOB", "")
+    ds.PatientSex       = p.get("patientSex", "")
+ 
+    # ── Study ─────────────────────────────────────────────────
+    ds.StudyInstanceUID       = p["studyUID"]
+    ds.StudyDate              = p["date"]
+    ds.StudyTime              = p["time"]
+    ds.StudyDescription       = (p.get("modality", "") + " " + p.get("bodypart", "")).strip()
+    ds.AccessionNumber        = p.get("accessionNumber", "")
+    ds.ReferringPhysicianName = p.get("referringPhysician", "")
+ 
+    # ── Series ────────────────────────────────────────────────
+    ds.SeriesInstanceUID = p["seriesUID"]
+    ds.SeriesNumber      = "1"
+    ds.Modality          = p.get("modality", "OT") or "OT"
+    ds.SeriesDescription = p.get("seriesDescription", "Endoscopy Video")
+    ds.BodyPartExamined  = p.get("bodypart", "")
+    ds.SeriesDate        = p["date"]
+    ds.SeriesTime        = p["time"]
+ 
+    # ── Equipment ─────────────────────────────────────────────
+    ds.Manufacturer          = p.get("manufacturer", "CUSTOM")
+    ds.ManufacturerModelName = p.get("modelName", "VideoConverter")
+    ds.SoftwareVersions      = "1.0"   # VR=SH, max 16 chars
+    ds.InstitutionName       = p.get("institution", "")
+ 
+    # ── SOP Instance ──────────────────────────────────────────
+    ds.SOPClassUID          = UID(SOP_CLASS)
+    ds.SOPInstanceUID       = UID(p["sopUID"])
+    ds.InstanceNumber       = "1"
+    ds.ContentDate          = p["date"]
+    ds.ContentTime          = p["time"]
+    ds.SpecificCharacterSet = "ISO_IR 192"
+    ds.ImageType            = ["DERIVED", "PRIMARY"]
+ 
+    # ── Image / Video Tags ────────────────────────────────────
+    width       = int(p["width"])
+    height      = int(p["height"])
+    fps         = float(p["fps"])
+    total_frames = int(p["totalFrames"])
+    frame_time  = round(1000 / fps, 4)   # milliseconds per frame
+ 
+    ds.Rows           = height
+    ds.Columns        = width
+    ds.NumberOfFrames = total_frames
+ 
+    # Timing — WAJIB agar tombol play/cine bekerja di OHIF
+    ds.FrameTime = str(frame_time)
+    ds.CineRate  = int(round(fps))
+ 
+    # FrameIncrementPointer → harus pakai add_new() dengan VR "AT"
+    # Menunjuk ke FrameTime (0018,1063)
+    ds.add_new(
+        pydicom.tag.Tag(0x0028, 0x0009),
+        "AT",
+        pydicom.tag.Tag(0x0018, 0x1063)
+    )
+ 
+    # Pixel format — YBR_PARTIAL_420 WAJIB untuk H.264
+    # Jika RGB → Cornerstone3D error "video not ready"
+    ds.SamplesPerPixel           = 3
+    ds.PhotometricInterpretation = "YBR_PARTIAL_420"
+    ds.PlanarConfiguration       = 0
+    ds.BitsAllocated             = 8
+    ds.BitsStored                = 8
+    ds.HighBit                   = 7
+    ds.PixelRepresentation       = 0
+    ds.PixelAspectRatio          = "1\\1"
+ 
+    # Lossy compression info
+    ds.LossyImageCompression       = "01"
+    ds.LossyImageCompressionRatio  = "10"
+    ds.LossyImageCompressionMethod = "ISO_14496_10"   # H.264
+ 
+    # ── Encapsulate MP4 → PixelData ───────────────────────────
+    # encapsulate_extended menghasilkan Basic Offset Table yang valid
+    # Tanpa BOT yang benar → Cornerstone error "video not ready"
+    pixel_data, offsets, lengths = encapsulate_extended([mp4_bytes])
+    ds.PixelData = pixel_data
+    ds["PixelData"].is_undefined_length = True   # WAJIB untuk encapsulated
+ 
+    # Extended Offset Table (7FE0,0001) & (7FE0,0002)
+    # Membantu OHIF/Cornerstone3D langsung seek ke posisi video stream
+    ds.add_new(
+        pydicom.tag.Tag(0x7FE0, 0x0001),
+        "OV",
+        struct.pack("<Q", int(offsets[0]))
+    )
+    ds.add_new(
+        pydicom.tag.Tag(0x7FE0, 0x0002),
+        "OV",
+        struct.pack("<Q", int(lengths[0]))
+    )
+ 
+    # ── Simpan ────────────────────────────────────────────────
+    pydicom.dcmwrite(p["dcmPath"], ds)
+ 
+    size_mb = os.path.getsize(p["dcmPath"]) / 1024 / 1024
+    # Output dibaca oleh Express
+    print(f"OK|{size_mb:.2f}|{width}x{height}|{total_frames}")
+ 
+ 
+# ─────────────────────────────────────────────────────────────
+# ENTRY POINT
+# ─────────────────────────────────────────────────────────────
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--params", required=True, help="Path ke file JSON parameter")
+    args = parser.parse_args()
+ 
+    with open(args.params, "r", encoding="utf-8") as f:
+        params = json.load(f)
+ 
+    make_dicom(params)
+ 

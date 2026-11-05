@@ -1,0 +1,22 @@
+{
+  "domain": "ct_brain_stroke",
+  "task": "classification",
+  "modelPath": "models/ct_brain_stroke/model.onnx",
+  "input": {
+    "width": 224,
+    "height": 224,
+    "channels": 3,
+    "layout": "NCHW",
+    "preprocessing": "ct_brain_stroke"
+  },
+  "output": {
+    "activation": "softmax",
+    "threshold": 0.5,
+    "labels": ["Brain Stroke", "Normal"]
+  },
+  "inputName": "input",
+  "source": {
+    "library": "BTX24/beit-base-patch16-224-pt22k-ft22k-finetuned-stroke-binary",
+    "note": "BEiT model fine-tuned on CT brain scans for stroke binary classification. Class 0: Stroke Present, Class 1: Normal."
+  }
+}

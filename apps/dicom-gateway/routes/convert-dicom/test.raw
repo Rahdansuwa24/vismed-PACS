@@ -1,0 +1,10 @@
+{
+   "Details" : "DICOMweb: Unable to get transcoded file for instance 3bf3ca1b-faf89563-d276f0c1-045bdf66-0a9304b2",
+   "HttpError" : "Internal Server Error",
+   "HttpStatus" : 500,
+   "Message" : "Internal error",
+   "Method" : "GET",
+   "OrthancError" : "Internal error",
+   "OrthancStatus" : -1,
+   "Uri" : "/dicom-web/studies/2.25.17780941583198339399128/series/2.25.17780941583191262846515/instances/2.25.17780941583191647299374/frames/1"
+}

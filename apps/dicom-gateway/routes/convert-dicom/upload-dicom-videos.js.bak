@@ -1,0 +1,147 @@
+const express = require("express");
+const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
+const { execSync } = require("child_process");
+
+const router = express.Router();
+
+const upload = multer({
+  dest: "/tmp",
+  limits: { fileSize: 500 * 1024 * 1024 }
+});
+
+const ORTHANC_HOST = "127.0.0.1";
+const ORTHANC_PORT = "4242"; // DICOM port
+
+function safe(val) {
+  return String(val || "")
+    .replace(/"/g, "")
+    .replace(/'/g, "")
+    .trim();
+}
+
+router.post("/upload-video", upload.single("video"), async (req, res) => {
+  let videoPath = req.file?.path;
+
+  if (!videoPath) {
+    return res.status(400).json({ error: "No video uploaded" });
+  }
+
+  const framesDir = videoPath + "_frames";
+  const dicomDir = videoPath + "_dicom";
+
+  try {
+    const {
+      patientID,
+      name,
+      modality,
+      bodypart,
+      date,
+      time
+    } = req.body;
+
+    const studyUID = "2.25." + Date.now();
+    const seriesUID = studyUID + ".1";
+
+    console.log("🔥 STUDY:", studyUID);
+    console.log("🔥 SERIES:", seriesUID);
+
+    fs.mkdirSync(framesDir, { recursive: true });
+    fs.mkdirSync(dicomDir, { recursive: true });
+
+    execSync(
+      `ffmpeg -y -i "${videoPath}" -vf "fps=25,scale=512:512" ${framesDir}/frame_%05d.jpg`,
+      { stdio: "inherit" }
+    );
+
+    const frames = fs
+      .readdirSync(framesDir)
+      .filter(f => f.endsWith(".jpg"))
+      .sort();
+
+    if (!frames.length) {
+      throw new Error("Frame extraction gagal");
+    }
+
+    console.log("🔥 Total frames:", frames.length);
+
+    let i = 1;
+
+    for (const f of frames) {
+      const input = path.join(framesDir, f);
+      const output = path.join(dicomDir, `img_${i}.dcm`);
+
+      const sopUID = `${seriesUID}.${i}`;
+
+      const cmd = `
+img2dcm "${input}" "${output}" \
+-k "SOPClassUID=1.2.840.10008.5.1.4.1.1.7" \
+-k "Modality=${safe(modality || "OT")}" \
+-k "PatientName=${safe(name)}" \
+-k "PatientID=${safe(patientID)}" \
+-k "StudyInstanceUID=${studyUID}" \
+-k "SeriesInstanceUID=${seriesUID}" \
+-k "SeriesNumber=1" \
+-k "InstanceNumber=${i}" \
+-k "SOPInstanceUID=${sopUID}" \
+-k "StudyDate=${safe(date)}" \
+-k "StudyTime=${safe(time)}" \
+-k "StudyDescription=${safe(modality)} ${safe(bodypart)}" \
+-k "SeriesDescription=Endoscopy Video" \
+-k "PhotometricInterpretation=RGB" \
+-k "SamplesPerPixel=3" \
+-k "BitsAllocated=8" \
+-k "BitsStored=8" \
+-k "HighBit=7" \
+-k "PlanarConfiguration=0" \
+-k "ImageOrientationPatient=1\\0\\0\\0\\1\\0" \
+-k "ImagePositionPatient=0\\0\\${i}" \
+-k "PixelSpacing=1\\1" \
+-k "FrameOfReferenceUID=${studyUID}" \
+-k "FrameTime=40" \
+-k "CineRate=25"
+`;
+
+      execSync(cmd);
+
+      i++;
+    }
+
+    console.log("🔥 DICOM created:", i - 1);
+
+    const dcmFiles = fs.readdirSync(dicomDir).filter(f => f.endsWith(".dcm"));
+
+    for (const f of dcmFiles) {
+      const fullPath = path.join(dicomDir, f);
+
+      execSync(
+        `storescu -v --propose-jpeg8 -aec ORTHANC ${ORTHANC_HOST} ${ORTHANC_PORT} "${fullPath}"`,
+        { stdio: "inherit" }
+      );
+    }
+
+    console.log("🔥 Upload selesai");
+
+    res.json({
+      status: "OK",
+      frames: i - 1,
+      message: "Cine multi-instance siap 🎬"
+    });
+
+  } catch (err) {
+    console.error("❌ ERROR:", err.message);
+    res.status(500).json({ error: err.message });
+
+  } finally {
+    try {
+      if (videoPath && fs.existsSync(videoPath)) fs.unlinkSync(videoPath);
+      if (fs.existsSync(framesDir)) fs.rmSync(framesDir, { recursive: true, force: true });
+      if (fs.existsSync(dicomDir)) fs.rmSync(dicomDir, { recursive: true, force: true });
+    } catch (e) {
+      console.warn("Cleanup error:", e.message);
+    }
+  }
+});
+
+module.exports = router;
