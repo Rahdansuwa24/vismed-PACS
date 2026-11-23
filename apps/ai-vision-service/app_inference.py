@@ -263,7 +263,7 @@ def decode_classification_ecg(outputs, config: dict):
 
     # Try to load thresholds.json
     thresholds = {}
-    thresholds_path = Path(__file__).resolve().parent / "models" / "ecg" / "thresholds.json"
+    thresholds_path = MODEL_DIR / "ecg" / "thresholds.json"
     if thresholds_path.is_file():
         try:
             with open(thresholds_path, "r") as f:

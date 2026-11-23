@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from huggingface_hub import snapshot_download
 try:
     from dotenv import load_dotenv
@@ -6,8 +7,12 @@ try:
 except ImportError:
     pass
 
-# Folder tujuan
-TARGET_DIR = r"d:\PA\vismed\vision_models"
+BASE_DIR = Path(__file__).resolve().parent
+REPO_ROOT = BASE_DIR.parents[1]
+DEFAULT_MODEL_DIR = REPO_ROOT / "models"
+
+# Folder tujuan (membaca dari VISION_MODEL_DIR, default ke <repo-root>/models)
+TARGET_DIR = Path(os.getenv("VISION_MODEL_DIR", DEFAULT_MODEL_DIR))
 os.makedirs(TARGET_DIR, exist_ok=True)
 
 # Daftar model Hugging Face yang akan diunduh

@@ -12,7 +12,7 @@ for model_path in sorted(MODELS_DIR.glob("**/model.onnx")):
         outputs = [o.name for o in session.get_outputs()]
         input_shapes = [i.shape for i in session.get_inputs()]
         output_shapes = [o.shape for o in session.get_outputs()]
-        print(f"Model: {model_path.relative_to(BASE_DIR)}")
+        print(f"Model: {model_path.relative_to(MODELS_DIR)}")
         print(f"  Inputs:  {inputs} with shapes {input_shapes}")
         print(f"  Outputs: {outputs} with shapes {output_shapes}\n")
     except Exception as e:

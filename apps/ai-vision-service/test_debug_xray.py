@@ -1,11 +1,13 @@
+import os
 import onnxruntime as ort
 import numpy as np
 from PIL import Image
 from pathlib import Path
 import json
 
-BASE_DIR = Path("/home/pacs/servers/apps/ai-vision-service")
-model_path = Path("/home/pacs/servers/models/xray/model.onnx")
+BASE_DIR = Path(__file__).resolve().parent
+MODELS_DIR = Path(os.getenv("VISION_MODEL_DIR", BASE_DIR.parents[1] / "models"))
+model_path = MODELS_DIR / "xray" / "model.onnx"
 config_path = BASE_DIR / "config" / "xray.json"
 
 config = json.loads(config_path.read_text(encoding="utf-8"))

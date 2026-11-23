@@ -10,8 +10,10 @@ from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
-BASE_DIR = Path("d:/PA/vismed")
-sys.path.append(str(BASE_DIR / "brain-stroke-segmentation"))
+SCRIPT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SCRIPT_DIR.parents[1]
+MODELS_DIR = Path(os.getenv("VISION_MODEL_DIR", REPO_ROOT / "models"))
+sys.path.append(str(REPO_ROOT / "brain-stroke-segmentation"))
 
 # --- ONNX Exporter Monkeypatches & Custom Symbolics ---
 try:
@@ -134,7 +136,7 @@ except Exception as e:
 
 def convert_tb_model():
     print("\n--- Converting Tuberculosis ViT Model ---")
-    model_dir = BASE_DIR / "vision_models" / "sukhmani1303_tuberculosis-vit-model"
+    model_dir = MODELS_DIR / "sukhmani1303_tuberculosis-vit-model"
     model_path = model_dir / "model.pt"
     onnx_path = model_dir / "model.onnx"
     
@@ -163,7 +165,7 @@ def convert_tb_model():
 
 def convert_stroke_lcnn_model():
     print("\n--- Converting Brain Stroke LCNN Model ---")
-    model_dir = BASE_DIR / "vision_models" / "hoangtung386_brain-stroke-lcnn"
+    model_dir = MODELS_DIR / "hoangtung386_brain-stroke-lcnn"
     weights_path = model_dir / "best_model.pth"
     onnx_path = model_dir / "model.onnx"
     
@@ -199,7 +201,7 @@ def convert_stroke_lcnn_model():
 
 def convert_monai_lung_model():
     print("\n--- Converting MONAI Lung Nodule Model ---")
-    model_dir = BASE_DIR / "vision_models" / "MONAI_lung_nodule_ct_detection"
+    model_dir = MODELS_DIR / "MONAI_lung_nodule_ct_detection"
     weights_path = model_dir / "models" / "model.pt"
     onnx_path = model_dir / "models" / "model.onnx"
     
@@ -272,7 +274,7 @@ def convert_monai_lung_model():
 
 def convert_btx24_model():
     print("\n--- Converting BTX24 Beit Model ---")
-    model_dir = BASE_DIR / "vision_models" / "BTX24_beit-base-patch16-224-pt22k-ft22k-finetuned-stroke-binary"
+    model_dir = MODELS_DIR / "BTX24_beit-base-patch16-224-pt22k-ft22k-finetuned-stroke-binary"
     onnx_path = model_dir / "model.onnx"
     
     try:

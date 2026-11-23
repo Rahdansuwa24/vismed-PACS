@@ -1,7 +1,10 @@
+import os
 import onnx
 from pathlib import Path
 
-model_path = Path(__file__).resolve().parent / "models" / "xray" / "model.onnx"
+BASE_DIR = Path(__file__).resolve().parent
+MODELS_DIR = Path(os.getenv("VISION_MODEL_DIR", BASE_DIR.parents[1] / "models"))
+model_path = MODELS_DIR / "xray" / "model.onnx"
 model = onnx.load(str(model_path))
 
 for node in model.graph.node:
