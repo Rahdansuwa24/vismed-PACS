@@ -43,40 +43,16 @@ export default function EcgForwarder() {
     }
   }, [logs]);
 
-  // Compute stats based on logs
-  const stats = (() => {
-    const uniqueFiles = new Set();
-    const successfulFiles = new Set();
-    const failedFiles = new Set();
-
-    logs.forEach(log => {
-      if (log.filename && log.filename !== "-") {
-        uniqueFiles.add(log.filename);
-        if (log.status === "success" && log.message.includes("Orthanc PACS")) {
-          successfulFiles.add(log.filename);
-        }
-        if (log.status === "error") {
-          failedFiles.add(log.filename);
-        }
-      }
-    });
-
-    return {
-      total: uniqueFiles.size,
-      success: successfulFiles.size,
-      failed: failedFiles.size
-    };
-  })();
-
   // Filter logs to find actual file transactions for the history table
   const transactions = (() => {
     const txMap = {};
-    
+
     // Sort chronological (oldest to newest) to build status, then reverse
     const sortedLogs = [...logs].reverse();
 
     sortedLogs.forEach(log => {
       if (!log.filename || log.filename === "-") return;
+      const msg = log.message || "";
 
       if (!txMap[log.filename]) {
         txMap[log.filename] = {
@@ -87,27 +63,58 @@ export default function EcgForwarder() {
           simrsStatus: "pending",
           details: []
         };
+      } else if (msg.includes("memulai pemrosesan") || msg.includes("Menerima file Baru")) {
+        txMap[log.filename].timestamp = log.timestamp;
+        txMap[log.filename].nomor_pelayanan = log.nomor_pelayanan;
+        txMap[log.filename].orthancStatus = "pending";
+        txMap[log.filename].simrsStatus = "pending";
       }
 
       txMap[log.filename].details.push(log);
-      
-      // Update status flags based on log messages
-      if (log.message.includes("Orthanc PACS") && log.status === "success") {
+
+      if (log.status === "error" && (msg.includes("mengonversi PDF") || msg.includes("Gagal memproses file"))) {
+        txMap[log.filename].orthancStatus = "failed";
+        if (txMap[log.filename].simrsStatus === "pending") {
+          txMap[log.filename].simrsStatus = "failed";
+        }
+      }
+
+      if (msg.includes("Orthanc") && log.status === "success") {
         txMap[log.filename].orthancStatus = "success";
-      } else if (log.message.includes("Orthanc") && log.status === "error") {
+      } else if ((msg.includes("Orthanc") || msg.includes("DICOM SC") || msg.includes("DICOM Secondary Capture")) && log.status === "error") {
         txMap[log.filename].orthancStatus = "failed";
       }
 
-      if (log.message.includes("SIMRS") && log.status === "success") {
+      if (msg.includes("SIMRS") && log.status === "success") {
         txMap[log.filename].simrsStatus = "success";
-      } else if (log.message.includes("SIMRS") && log.status === "warning") {
+      } else if (msg.includes("SIMRS") && (log.status === "warning" || msg.includes("dilewati"))) {
         txMap[log.filename].simrsStatus = "skipped";
-      } else if (log.message.includes("SIMRS") && log.status === "error") {
+      } else if (msg.includes("SIMRS") && log.status === "error") {
         txMap[log.filename].simrsStatus = "failed";
       }
     });
 
     return Object.values(txMap).reverse(); // Newest first
+  })();
+
+  // Compute stats based on current transaction states
+  const stats = (() => {
+    let success = 0;
+    let failed = 0;
+
+    transactions.forEach(tx => {
+      if (tx.orthancStatus === "failed" || tx.simrsStatus === "failed") {
+        failed += 1;
+      } else if (tx.orthancStatus === "success") {
+        success += 1;
+      }
+    });
+
+    return {
+      total: transactions.length,
+      success,
+      failed
+    };
   })();
 
   return (
